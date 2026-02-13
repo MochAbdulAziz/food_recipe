@@ -1,0 +1,46 @@
+Analyzing food_app...                                           
+
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:23:17 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:26:17 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:36:17 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:38:17 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:50:21 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:51:21 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:54:17 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:67:16 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:88:19 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:89:19 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:91:28 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:95:15 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:101:11 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:111:11 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:123:12 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:143:29 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:146:21 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:151:9 • prefer_const_constructors
+  error • The argument for the named parameter 'color' was already specified • lib/screens/home_screen.dart:159:13 • duplicate_named_argument
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:162:18 • prefer_const_constructors
+  error • The getter 'soup_kitchen' isn't defined for the type 'Icons' • lib/screens/home_screen.dart:172:49 • undefined_getter
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:173:9 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:174:9 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:175:9 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:176:9 • prefer_const_constructors
+   info • Prefer const literals as parameters of constructors on @immutable classes • lib/screens/home_screen.dart:183:17 • prefer_const_literals_to_create_immutables
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:184:9 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:192:9 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/screens/home_screen.dart:200:9 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/category_item.dart:25:53 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/category_item.dart:35:9 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:22:15 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:24:16 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:34:21 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:58:19 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:69:19 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:72:23 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:73:23 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:74:23 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:75:23 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:76:23 • prefer_const_constructors
+   info • Prefer const with constant constructors • lib/widgets/food_card.dart:77:23 • prefer_const_constructors
+   info • Unused import: 'package:flutter/material.dart' • test/widget_test.dart:8:8 • unused_import
+

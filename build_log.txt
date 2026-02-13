@@ -1,0 +1,5 @@
+
+💪 Building with sound null safety 💪
+
+Running Gradle task 'assembleDebug'...                            137.4s
+✓  Built build/app/outputs/flutter-apk/app-debug.apk.
