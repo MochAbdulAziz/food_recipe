@@ -30,8 +30,7 @@ class ProfileScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildHeaderButton(Icons.arrow_back_ios_new,
-                          () => Navigator.pop(context)),
+                      _buildHeaderButton(Icons.arrow_back_ios_new, () {}),
                       Text(
                         "Profile",
                         style: Theme.of(context).textTheme.headline6?.copyWith(
