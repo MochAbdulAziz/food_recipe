@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/home/home_cubit.dart';
 import '../bloc/home/home_state.dart';
 import '../widgets/custom_app_bar.dart';
+import 'category_menu_screen.dart';
+import 'recipe_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -41,7 +43,8 @@ class HomeScreen extends StatelessWidget {
                                   ),
                         ),
                         const SizedBox(height: 16),
-                        _buildCategories(state.categories),
+                        _buildCategories(
+                            context, state.categories, state.foodItems),
                         const SizedBox(height: 32),
                         // What's Cooking Now
                         Row(
@@ -63,7 +66,7 @@ class HomeScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        _buildFoodList(state.foodItems),
+                        _buildFoodList(context, state.foodItems),
                       ],
                     ),
                   ),
@@ -81,24 +84,49 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategories(List<CategoryData> categories) {
+  Widget _buildCategories(
+      context, List<CategoryData> categories, List<FoodItemData> foodItems) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: categories
-          .map((category) =>
-              CategoryItem(title: category.title, icon: category.icon))
+          .map((category) => GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CategoryMenuScreen(
+                        categoryTitle: category.title,
+                        foodItems: foodItems
+                            .where((item) => item.category == category.title)
+                            .toList(),
+                      ),
+                    ),
+                  );
+                },
+                child: CategoryItem(title: category.title, icon: category.icon),
+              ))
           .toList(),
     );
   }
 
-  Widget _buildFoodList(List<FoodItemData> foodItems) {
+  Widget _buildFoodList(context, List<FoodItemData> foodItems) {
     return Column(
       children: foodItems
-          .map((item) => FoodCard(
-                title: item.title,
-                description: item.description,
-                rating: item.rating,
-                imageUrl: item.imageUrl,
+          .map((item) => GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RecipeDetailScreen(foodItem: item),
+                    ),
+                  );
+                },
+                child: FoodCard(
+                  title: item.title,
+                  description: item.description,
+                  rating: item.rating,
+                  imageUrl: item.imageUrl,
+                ),
               ))
           .toList(),
     );

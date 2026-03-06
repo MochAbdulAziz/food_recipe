@@ -45,14 +45,37 @@ class FoodItemData extends Equatable {
   final String description;
   final double rating;
   final String imageUrl;
+  final String category;
+  final String prepTime;
+  final String proteins;
+  final String fats;
+  final String carbs;
+  final List<String> ingredients;
 
   const FoodItemData({
     required this.title,
     required this.description,
     required this.rating,
     required this.imageUrl,
+    required this.category,
+    this.prepTime = "15 Min",
+    this.proteins = "0 g",
+    this.fats = "0 g",
+    this.carbs = "0 g",
+    this.ingredients = const [],
   });
 
   @override
-  List<Object> get props => [title, description, rating, imageUrl];
+  List<Object> get props => [
+        title,
+        description,
+        rating,
+        imageUrl,
+        category,
+        prepTime,
+        proteins,
+        fats,
+        carbs,
+        ingredients
+      ];
 }

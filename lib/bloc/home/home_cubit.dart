@@ -26,7 +26,9 @@ class HomeCubit extends Cubit<HomeState> {
               "Spicy fried rice with juicy shrimp and bold flavors in every bite.",
           rating: 5.0,
           imageUrl:
-              "https://images.unsplash.com/photo-1552590635-27c2c2128abf?w=500&auto=format&fit=crop&q=60",
+              "https://images.unsplash.com/photo-1552590635-27c2c2128abf?w=1000&auto=format&fit=crop&q=80",
+          category: "Dinner",
+          prepTime: "20 Min",
         ),
         const FoodItemData(
           title: "Japanese Katsu Curry",
@@ -34,7 +36,9 @@ class HomeCubit extends Cubit<HomeState> {
               "A perfect balance of crispy katsu and aromatic curry sauce, crafted for true comfort.",
           rating: 4.7,
           imageUrl:
-              "https://images.unsplash.com/photo-1552590635-27c2c2128abf?w=500&auto=format&fit=crop&q=60",
+              "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=1000&auto=format&fit=crop&q=80",
+          category: "Dinner",
+          prepTime: "30 Min",
         ),
         const FoodItemData(
           title: "Classic Egg Toast",
@@ -42,7 +46,77 @@ class HomeCubit extends Cubit<HomeState> {
               "Buttery toast layered with perfectly cooked eggs - a timeless breakfast favorite.",
           rating: 4.5,
           imageUrl:
-              "https://images.unsplash.com/photo-1552590635-27c2c2128abf?w=500&auto=format&fit=crop&q=60",
+              "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=1000&auto=format&fit=crop&q=80",
+          category: "Breakfast",
+          prepTime: "10 Min",
+        ),
+        const FoodItemData(
+          title: "Pancakes with Syrup",
+          description:
+              "Fluffy pancakes served with maple syrup and fresh berries.",
+          rating: 4.8,
+          imageUrl:
+              "https://images.unsplash.com/photo-1528207776546-384cb1119671?w=1000&auto=format&fit=crop&q=80",
+          category: "Breakfast",
+          prepTime: "15 Min",
+        ),
+        const FoodItemData(
+          title: "Creamy Tomato Soup",
+          description:
+              "Rich and creamy tomato soup, perfect for a cozy evening.",
+          rating: 4.6,
+          imageUrl:
+              "https://images.unsplash.com/photo-1547592180-85f173990554?w=1000&auto=format&fit=crop&q=80",
+          category: "Soup",
+          prepTime: "25 Min",
+        ),
+        const FoodItemData(
+          title: "Chicken Noodle Soup",
+          description: "Comforting chicken noodle soup with fresh vegetables.",
+          rating: 4.9,
+          imageUrl:
+              "https://images.unsplash.com/photo-1603105037880-8ea2bc26dcc6?w=1000&auto=format&fit=crop&q=80",
+          category: "Soup",
+          prepTime: "40 Min",
+        ),
+        const FoodItemData(
+          title: "Iced Caramel Macchiato",
+          description:
+              "Chilled espresso with milk and a sweet caramel drizzle.",
+          rating: 4.7,
+          imageUrl:
+              "https://images.unsplash.com/photo-1593444465545-09b68a86c673?w=1000&auto=format&fit=crop&q=80",
+          category: "Drinks",
+          prepTime: "5 Min",
+        ),
+        const FoodItemData(
+          title: "Tropical Mango Smoothie",
+          description: "Refreshing blend of ripe mangoes, yogurt, and honey.",
+          rating: 4.8,
+          imageUrl:
+              "https://images.unsplash.com/photo-1628557044797-f21a177c37ec?w=1000&auto=format&fit=crop&q=80",
+          category: "Drinks",
+          prepTime: "5 Min",
+        ),
+        const FoodItemData(
+          title: "Chocolate Lava Cake",
+          description:
+              "Decadent chocolate cake with a molten chocolate center.",
+          rating: 4.9,
+          imageUrl:
+              "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=1000&auto=format&fit=crop&q=80",
+          category: "More",
+          prepTime: "30 Min",
+        ),
+        const FoodItemData(
+          title: "Classic Caesar Salad",
+          description:
+              "Crisp romaine lettuce with parmesan, croutons, and Caesar dressing.",
+          rating: 4.4,
+          imageUrl:
+              "https://images.unsplash.com/photo-1550304943-4f24f54fb80c?w=1000&auto=format&fit=crop&q=80",
+          category: "More",
+          prepTime: "15 Min",
         ),
       ];
 
