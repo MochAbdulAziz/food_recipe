@@ -32,7 +32,7 @@ class CustomAppBar extends StatelessWidget {
                         Text(
                           "Hi Aziz",
                           style:
-                              Theme.of(context).textTheme.headline5?.copyWith(
+                              Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -53,7 +53,7 @@ class CustomAppBar extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   "Craving something\ndelicious today?",
-                  style: Theme.of(context).textTheme.headline6?.copyWith(
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.white.withOpacity(0.9),
                         fontWeight: FontWeight.w400,
                         height: 1.3,
@@ -87,7 +87,7 @@ class CustomAppBar extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: "Find something delicious...",
                       hintStyle:
-                          Theme.of(context).textTheme.bodyText2?.copyWith(
+                          Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: Colors.grey,
                               ),
                       prefixIcon: const Icon(Icons.search, color: Colors.grey),

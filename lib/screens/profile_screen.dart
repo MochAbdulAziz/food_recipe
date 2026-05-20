@@ -33,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
                       _buildHeaderButton(Icons.arrow_back_ios_new, () {}),
                       Text(
                         "Profile",
-                        style: Theme.of(context).textTheme.headline6?.copyWith(
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
@@ -51,14 +51,14 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     "Jane Cooper",
-                    style: Theme.of(context).textTheme.headline5?.copyWith(
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   Text(
                     "Janeper01@gmail.com",
-                    style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.white70,
                         ),
                   ),
@@ -163,7 +163,7 @@ class ProfileScreen extends StatelessWidget {
             color: isLogout ? AppColors.accentRed : AppColors.textDark),
         title: Text(
           title,
-          style: Theme.of(context).textTheme.subtitle1?.copyWith(
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w500,
                 color: isLogout ? AppColors.accentRed : AppColors.textDark,
               ),

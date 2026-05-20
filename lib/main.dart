@@ -46,8 +46,8 @@ class MainApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: AppColors.primary,
-            onPrimary: Colors.white,
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),

@@ -36,7 +36,7 @@ class HomeScreen extends StatelessWidget {
                         Text(
                           "Categories",
                           style:
-                              Theme.of(context).textTheme.headline6?.copyWith(
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.textDark,
@@ -53,7 +53,7 @@ class HomeScreen extends StatelessWidget {
                               "What's Cooking Now",
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline6
+                                  .titleLarge
                                   ?.copyWith(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
