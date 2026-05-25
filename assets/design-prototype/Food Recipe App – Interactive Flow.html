@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Recipe App — Interactive Flow · Huashu-Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,700;1,500;1,600&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1410;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px 80px;
+    }
+    input:focus { outline: none; }
+    button:focus { outline: none; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+// ─────────────────────────────────────────────
+// DESIGN TOKENS  (from existing Flutter app)
+// ─────────────────────────────────────────────
+const T = {
+  primary:      '#8D7B68',
+  primaryDeep:  '#6B5C4D',
+  primaryLight: '#A89880',
+  bg:           '#F8F7F5',
+  bgCard:       '#FFFFFF',
+  bgMuted:      '#F0ECE7',
+  textDark:     '#2D2620',
+  textMid:      '#6B5C4D',
+  textLight:    '#A89880',
+  accentAmber:  '#C8871A',
+  accentSalmon: '#E07B5C',
+  chipBg:       '#EDE8E3',
+  divider:      'rgba(45,38,32,0.08)',
+};
+
+// ─────────────────────────────────────────────
+// DATA — 6 recipes with full cooking steps
+// ─────────────────────────────────────────────
+const RECIPES = [
+  {
+    id: 'shrimp-rice',
+    title: 'Hot & Spicy Shrimp Rice',
+    description: 'Spicy fried rice with juicy shrimp and bold flavors in every bite.',
+    rating: 5.0, prepTime: '20 Min', category: 'Dinner',
+    calories: '480 kcal', servings: '2',
+    proteins: '28 g', fats: '14 g', carbs: '62 g',
+    imageUrl: 'https://images.unsplash.com/photo-1552590635-27c2c2128abf?w=800&auto=format&fit=crop&q=80',
+    ingredients: ['Shrimp', 'Jasmine Rice', 'Chili Oil', 'Garlic', 'Spring Onion'],
+    steps: [
+      { title: 'Cook the rice',      desc: 'Rinse jasmine rice until the water runs clear. Cook at 1:1.5 ratio with water — bring to boil, then 12 min on low. Spread flat to cool completely.',        duration: '15 min' },
+      { title: 'Prep the shrimp',    desc: 'Peel and devein shrimp. Pat completely dry with paper towels. Toss with ½ tsp salt, cracked pepper, and a pinch of chili flakes.',                     duration: '5 min'  },
+      { title: 'Sauté aromatics',    desc: 'Heat chili oil in a wok over high heat until shimmering. Add minced garlic and fry for 30 seconds, stirring constantly, until fragrant and just golden.',  duration: '3 min'  },
+      { title: 'Fry rice & shrimp',  desc: 'Add shrimp to wok — cook 2 min each side until pink. Push aside, add cooled rice. Toss everything on high heat for 4–5 minutes until lightly charred.',  duration: '8 min'  },
+      { title: 'Finish & plate',     desc: 'Season with soy sauce and a drop of sesame oil. Taste and adjust. Plate, top with sliced spring onion and a squeeze of lime. Serve immediately.',         duration: '2 min'  },
+    ],
+  },
+  {
+    id: 'katsu',
+    title: 'Japanese Katsu Curry',
+    description: 'A perfect balance of crispy katsu and aromatic curry sauce, crafted for true comfort.',
+    rating: 4.7, prepTime: '30 Min', category: 'Dinner',
+    calories: '580 kcal', servings: '2',
+    proteins: '34 g', fats: '22 g', carbs: '68 g',
+    imageUrl: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop&q=80',
+    ingredients: ['Chicken Breast', 'Panko Crumbs', 'Curry Sauce', 'Steamed Rice', 'Daikon'],
+    steps: [
+      { title: 'Prep the chicken',   desc: 'Pound chicken breast to an even 1.5 cm thickness. Season generously on both sides with salt, cracked pepper, and a pinch of garlic powder.',               duration: '5 min'  },
+      { title: 'Coat & bread',       desc: 'Set up three stations: flour, beaten egg, panko crumbs. Dust chicken in flour, dip in egg, then press firmly into panko until fully and evenly coated.',   duration: '5 min'  },
+      { title: 'Deep fry',           desc: 'Heat oil to 180°C (350°F). Gently lower chicken and fry 5–7 minutes until deep golden brown on both sides. Drain on a wire rack, not paper towels.',       duration: '10 min' },
+      { title: 'Warm curry sauce',   desc: 'In a small saucepan, warm curry sauce over medium heat for 5 minutes. Add a splash of chicken stock and stir until silky and just simmering.',             duration: '5 min'  },
+      { title: 'Plate & serve',      desc: 'Slice katsu on a clean diagonal. Fan over steamed rice. Spoon curry sauce generously alongside. Garnish with julienned pickled daikon and sesame seeds.',  duration: '3 min'  },
+    ],
+  },
+  {
+    id: 'egg-toast',
+    title: 'Classic Egg Toast',
+    description: 'Buttery toast layered with perfectly cooked eggs — a timeless breakfast favorite.',
+    rating: 4.5, prepTime: '10 Min', category: 'Breakfast',
+    calories: '320 kcal', servings: '1',
+    proteins: '14 g', fats: '18 g', carbs: '28 g',
+    imageUrl: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=800&auto=format&fit=crop&q=80',
+    ingredients: ['Sourdough Bread', 'Eggs', 'Butter', 'Sea Salt', 'Fresh Chives'],
+    steps: [
+      { title: 'Toast the bread',    desc: 'Spread butter on one side of sourdough slices. Place butter-side down in a cold pan, then bring to medium heat. Toast 3–4 min until deep golden and crisp.', duration: '4 min' },
+      { title: 'Prep the pan',       desc: 'Add a fresh knob of butter to a non-stick pan over the lowest possible heat. Let it melt gently, swirling the pan — it should foam but not brown at all.',    duration: '1 min' },
+      { title: 'Cook the eggs',      desc: 'Crack eggs gently into the pan one at a time. Cook undisturbed on very low heat for 3–4 minutes. Whites should be just set; yolks should stay runny.',        duration: '4 min' },
+      { title: 'Season & plate',     desc: 'Slide eggs carefully onto toast. Immediately season with flaky sea salt and freshly cracked pepper. Finish with a scatter of finely chopped fresh chives.',   duration: '1 min' },
+    ],
+  },
+  {
+    id: 'pancakes',
+    title: 'Pancakes with Syrup',
+    description: 'Fluffy pancakes served with maple syrup and fresh berries.',
+    rating: 4.8, prepTime: '15 Min', category: 'Breakfast',
+    calories: '420 kcal', servings: '2',
+    proteins: '10 g', fats: '16 g', carbs: '58 g',
+    imageUrl: 'https://images.unsplash.com/photo-1528207776546-384cb1119671?w=800&auto=format&fit=crop&q=80',
+    ingredients: ['Flour', 'Eggs', 'Buttermilk', 'Maple Syrup', 'Fresh Berries'],
+    steps: [
+      { title: 'Mix the batter',    desc: 'Combine 200g flour, 2 tsp baking powder, 1 tbsp sugar, and ½ tsp salt. In a separate bowl whisk 2 eggs and 240ml buttermilk. Combine — small lumps are fine, do not over-mix.', duration: '4 min' },
+      { title: 'Rest the batter',   desc: 'Cover batter and rest for 5 minutes. This activates the baking powder and allows gluten to relax, giving you dramatically fluffier pancakes.',                               duration: '5 min' },
+      { title: 'Cook pancakes',     desc: 'Butter a pan over medium heat. Pour ¼ cup batter per pancake. Cook until bubbles form and edges look set (about 2 min). Flip once, cook 1 more minute.',                    duration: '10 min' },
+      { title: 'Stack & serve',     desc: 'Stack 3–4 pancakes, drizzle generously with warm maple syrup. Pile fresh berries on top. Optional: a light dusting of icing sugar for presentation.',                       duration: '2 min' },
+    ],
+  },
+  {
+    id: 'tomato-soup',
+    title: 'Creamy Tomato Soup',
+    description: 'Rich and creamy tomato soup, perfect for a cozy evening.',
+    rating: 4.6, prepTime: '25 Min', category: 'Soup',
+    calories: '280 kcal', servings: '2',
+    proteins: '6 g', fats: '16 g', carbs: '30 g',
+    imageUrl: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=800&auto=format&fit=crop&q=80',
+    ingredients: ['Tomatoes', 'Heavy Cream', 'Onion', 'Garlic', 'Fresh Basil'],
+    steps: [
+      { title: 'Sauté the base',    desc: 'Dice one large onion and mince 4 garlic cloves. Cook in 2 tbsp olive oil over medium heat for 8–10 minutes, stirring occasionally, until very soft and translucent.',  duration: '10 min' },
+      { title: 'Add tomatoes',      desc: 'Add one 800g tin of crushed tomatoes and 400ml vegetable stock. Bring to a boil, then reduce heat and simmer uncovered for 15 minutes.',                                duration: '15 min' },
+      { title: 'Blend smooth',      desc: 'Remove from heat and use an immersion blender to blend completely smooth. Season with salt, black pepper, and a tiny pinch of sugar to balance acidity.',               duration: '3 min'  },
+      { title: 'Cream & finish',    desc: 'Return to low heat. Stir in 80ml heavy cream. Simmer 2 more minutes, do not boil. Serve in warm bowls with fresh torn basil and a swirl of cream on top.',             duration: '3 min'  },
+    ],
+  },
+  {
+    id: 'caramel-macchiato',
+    title: 'Iced Caramel Macchiato',
+    description: 'Chilled espresso layered over milk with a sweet caramel drizzle.',
+    rating: 4.7, prepTime: '5 Min', category: 'Drinks',
+    calories: '250 kcal', servings: '1',
+    proteins: '8 g', fats: '6 g', carbs: '38 g',
+    imageUrl: 'https://images.unsplash.com/photo-1517705008128-361805f42e86?w=800&auto=format&fit=crop&q=80',
+    ingredients: ['Espresso', 'Whole Milk', 'Vanilla Syrup', 'Caramel Sauce', 'Ice Cubes'],
+    steps: [
+      { title: 'Build the base',    desc: 'Fill a tall 400ml glass generously with ice cubes. Pour in 200ml cold whole milk and one pump (15ml) of vanilla syrup. Stir gently to combine.',                         duration: '1 min' },
+      { title: 'Pull espresso',     desc: 'Brew 2 shots (60ml) of fresh espresso on your machine. For the layered effect, let it cool 30 seconds — too hot and it will cook the milk on impact.',                  duration: '2 min' },
+      { title: 'Layer & drizzle',   desc: 'Slowly pour espresso over the back of a spoon held just above the milk — the two layers should stay visually separate. Drizzle caramel generously in a spiral pattern.',  duration: '1 min' },
+      { title: 'Serve immediately', desc: 'Give the caramel one gentle stir just before drinking to bring the flavours together. Best enjoyed within 3 minutes before the ice dilutes it.',                         duration: '1 min' },
+    ],
+  },
+];
+
+// ─────────────────────────────────────────────
+// IOS FRAME  (inlined — matches existing design spec)
+// ─────────────────────────────────────────────
+const iosFrameStyles = {
+  wrapper: {
+    display: 'inline-block',
+    padding: 12,
+    background: '#1a1410',
+    borderRadius: 60,
+    boxShadow: '0 0 0 2px #2d2218, 0 24px 72px rgba(0,0,0,0.55)',
+    position: 'relative',
+  },
+  screen: {
+    position: 'relative',
+    borderRadius: 48,
+    overflow: 'hidden',
+    background: '#fff',
+  },
+  statusBar: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0,
+    height: 54,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 32px',
+    fontSize: 15,
+    fontWeight: 600,
+    fontFamily: '-apple-system, "SF Pro Text", sans-serif',
+    zIndex: 20,
+    pointerEvents: 'none',
+  },
+  dynamicIsland: {
+    position: 'absolute',
+    top: 12, left: '50%',
+    transform: 'translateX(-50%)',
+    width: 124, height: 36,
+    background: '#000',
+    borderRadius: 999,
+    zIndex: 30,
+  },
+  statusIcons: { display: 'flex', alignItems: 'center', gap: 6 },
+  content: {
+    position: 'absolute',
+    top: 54, left: 0, right: 0, bottom: 34,
+    overflowY: 'auto',
+    overflowX: 'hidden',
+  },
+  homeIndicator: {
+    position: 'absolute',
+    bottom: 10, left: '50%',
+    transform: 'translateX(-50%)',
+    width: 140, height: 5,
+    background: 'rgba(0,0,0,0.22)',
+    borderRadius: 999,
+    zIndex: 10,
+  },
+};
+
+function IosFrame({ children, width = 393, height = 790, time = '9:41', battery = 84, statusColor = '#000' }) {
+  return (
+    <div style={iosFrameStyles.wrapper}>
+      <div style={{ ...iosFrameStyles.screen, width, height }}>
+        <div style={{ ...iosFrameStyles.statusBar, color: statusColor }}>
+          <span>{time}</span>
+          <div style={iosFrameStyles.statusIcons}>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+              <path d="M8 11.5a1 1 0 100-2 1 1 0 000 2z" fill={statusColor} />
+              <path d="M3 7.5a7 7 0 0110 0" stroke={statusColor} strokeWidth="1.3" fill="none" strokeLinecap="round" />
+              <path d="M1 4.5a11 11 0 0114 0" stroke={statusColor} strokeWidth="1.3" fill="none" strokeLinecap="round" opacity="0.6" />
+            </svg>
+            <div style={{ width: 26, height: 12, border: `1.5px solid ${statusColor}`, borderRadius: 3, padding: 1, position: 'relative', opacity: 0.8 }}>
+              <div style={{ width: `${battery}%`, height: '100%', background: statusColor, borderRadius: 1, opacity: 0.9 }} />
+              <div style={{ position: 'absolute', top: 3, right: -3, width: 2, height: 6, background: statusColor, borderRadius: '0 1px 1px 0' }} />
+            </div>
+          </div>
+        </div>
+        <div style={iosFrameStyles.dynamicIsland} />
+        <div style={iosFrameStyles.content}>{children}</div>
+        <div style={{ ...iosFrameStyles.homeIndicator, background: statusColor === '#fff' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.22)' }} />
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// STAR RATING
+// ─────────────────────────────────────────────
+function Stars({ rating, size = 13 }) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+      {[1,2,3,4,5].map(i => (
+        <svg key={i} width={size} height={size} viewBox="0 0 12 12" fill="none">
+          <path
+            d="M6 1l1.39 2.82 3.11.45-2.25 2.19.53 3.1L6 8.02l-2.78 1.54.53-3.1L1.5 4.27l3.11-.45L6 1z"
+            fill={i <= full ? T.accentAmber : (i === full+1 && half ? `url(#starHalf${i}R${Math.round(rating*10)})` : '#DDD8D2')}
+          />
+          {i === full+1 && half && (
+            <defs>
+              <linearGradient id={`starHalf${i}R${Math.round(rating*10)}`} x1="0" x2="1" y1="0" y2="0">
+                <stop offset="50%" stopColor={T.accentAmber} />
+                <stop offset="50%" stopColor="#DDD8D2" />
+              </linearGradient>
+            </defs>
+          )}
+        </svg>
+      ))}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────────
+// BOTTOM NAV  (5-tab: Home | Search | FAB | Favourites | Profile)
+// ─────────────────────────────────────────────
+function BottomNav({ active, onTab }) {
+  const tabs = [
+    {
+      id: 'home', label: 'Home',
+      icon: <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />,
+    },
+    {
+      id: 'search', label: 'Search',
+      icon: <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />,
+    },
+    { id: 'FAB' },
+    {
+      id: 'favourites', label: 'Saved',
+      icon: <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />,
+    },
+    {
+      id: 'profile', label: 'Profile',
+      icon: <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />,
+    },
+  ];
+
+  return (
+    <div style={{
+      position: 'sticky', bottom: 0, background: '#fff',
+      borderTop: `1px solid ${T.divider}`,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+      height: 62, paddingBottom: 4, zIndex: 100,
+    }}>
+      {tabs.map(tab => {
+        if (tab.id === 'FAB') return (
+          <div
+            key="FAB"
+            onClick={() => onTab && onTab('search')}
+            style={{
+              width: 52, height: 52,
+              background: `linear-gradient(145deg, ${T.primaryLight}, ${T.primary})`,
+              borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: `0 4px 16px ${T.primary}60`,
+              cursor: 'pointer',
+              marginTop: -18,
+              border: '3px solid #fff',
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+              <path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-4.5-6.72-5.74-8.28-2.06-.39.89-.55 1.78-.55 2.06H16.03zM4.5 11.5c.41-1.32 1.26-2.5 2.75-3.24L4.5 2H3L4.5 11.5z"/>
+            </svg>
+          </div>
+        );
+        const isActive = active === tab.id;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => onTab && onTab(tab.id)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+              padding: '6px 14px',
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill={isActive ? T.primary : '#C8C0B8'}>
+              {tab.icon}
+            </svg>
+            <span style={{ fontSize: 10, fontWeight: 600, color: isActive ? T.primary : '#C8C0B8', fontFamily: 'Poppins' }}>
+              {tab.label}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// RECIPE CARD (reusable list item)
+// ─────────────────────────────────────────────
+function RecipeCard({ recipe, onPress, isFav, onToggleFav }) {
+  return (
+    <div
+      onClick={() => onPress(recipe)}
+      style={{
+        display: 'flex', gap: 14, background: '#fff', borderRadius: 18,
+        padding: 12, boxShadow: '0 2px 12px rgba(45,38,32,0.07)',
+        alignItems: 'center', cursor: 'pointer',
+      }}
+    >
+      <div style={{ width: 88, height: 88, borderRadius: 14, overflow: 'hidden', flexShrink: 0 }}>
+        <img src={recipe.imageUrl} alt={recipe.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: T.textDark, lineHeight: 1.3, marginBottom: 4 }}>{recipe.title}</div>
+        <div style={{
+          fontSize: 11, color: T.textLight, lineHeight: 1.5, marginBottom: 8,
+          overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+        }}>{recipe.description}</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Stars rating={recipe.rating} size={11} />
+            <span style={{ fontSize: 10, fontWeight: 600, color: T.textMid }}>{recipe.rating}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: T.bgMuted, borderRadius: 8, padding: '3px 8px' }}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill={T.textMid}><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 18a8 8 0 110-16 8 8 0 010 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+            <span style={{ fontSize: 10, fontWeight: 600, color: T.textMid }}>{recipe.prepTime}</span>
+          </div>
+        </div>
+      </div>
+      <button
+        onClick={e => { e.stopPropagation(); onToggleFav(recipe.id); }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 2px', flexShrink: 0 }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill={isFav ? T.accentSalmon : '#DDD8D2'}>
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 1 · HOME
+// ─────────────────────────────────────────────
+function HomeScreen({ onNav, onSelectRecipe, favourites, onToggleFav }) {
+  const [activeCategory, setActiveCategory] = React.useState('All');
+  const categories = ['All', 'Soup', 'Breakfast', 'Drinks', 'Dinner'];
+  const featured = RECIPES[0];
+  const listItems = activeCategory === 'All'
+    ? RECIPES.slice(1)
+    : RECIPES.filter(r => r.category === activeCategory);
+
+  return (
+    <div style={{ background: T.bg, minHeight: '100%', fontFamily: 'Poppins, sans-serif' }}>
+      {/* App Bar */}
+      <div style={{
+        background: `linear-gradient(160deg, #6B5C4D 0%, ${T.primary} 100%)`,
+        borderBottomLeftRadius: 28, borderBottomRightRadius: 28,
+        padding: '12px 20px 20px', position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -20, left: 40, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', fontWeight: 400 }}>Good morning</div>
+            <div style={{ fontSize: 20, color: '#fff', fontWeight: 700, lineHeight: 1.2 }}>Hi, Aziz 👋</div>
+          </div>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.35)' }}>
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80" alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        </div>
+        <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', fontWeight: 400, lineHeight: 1.4, marginBottom: 16 }}>
+          Craving something<br /><em style={{ fontStyle: 'italic', fontWeight: 300 }}>delicious</em> today?
+        </div>
+        {/* Tappable search bar → SearchScreen */}
+        <div
+          onClick={() => onNav('search')}
+          style={{
+            background: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center',
+            gap: 8, padding: '0 14px', height: 46,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.12)', cursor: 'text',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#B0A899">
+            <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <span style={{ fontSize: 13, color: '#C0B8AE', fontWeight: 400 }}>Find something delicious…</span>
+          <div style={{ marginLeft: 'auto', width: 32, height: 32, background: T.bgMuted, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={T.textMid}>
+              <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Category tabs */}
+      <div style={{ padding: '18px 20px 0', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                display: 'inline-block', padding: '7px 16px', borderRadius: 20,
+                border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                fontFamily: 'Poppins',
+                background: activeCategory === cat ? T.primary : T.chipBg,
+                color: activeCategory === cat ? '#fff' : T.textMid,
+                transition: 'all 0.2s',
+              }}
+            >{cat}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured hero card */}
+      {activeCategory === 'All' && (
+        <div style={{ padding: '16px 20px 0' }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.textDark, marginBottom: 12 }}>✦ Featured Recipe</div>
+          <div
+            onClick={() => onSelectRecipe(featured)}
+            style={{
+              borderRadius: 20, overflow: 'hidden', position: 'relative',
+              height: 180, boxShadow: '0 8px 32px rgba(45,38,32,0.18)', cursor: 'pointer',
+            }}
+          >
+            <img src={featured.imageUrl} alt={featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(28,20,14,0.88) 0%, rgba(28,20,14,0.2) 55%, transparent 100%)' }} />
+            <div style={{
+              position: 'absolute', top: 12, right: 12,
+              background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(6px)',
+              borderRadius: 20, padding: '4px 10px', fontSize: 10, fontWeight: 700,
+              color: '#fff', letterSpacing: '0.08em',
+            }}>
+              {featured.category.toUpperCase()}
+            </div>
+            <div style={{ position: 'absolute', bottom: 14, left: 14, right: 14 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 6 }}>{featured.title}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Stars rating={featured.rating} size={12} />
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{featured.rating}</span>
+                <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }} />
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)' }}>{featured.prepTime}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recipe list */}
+      <div style={{ padding: '20px 20px 4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: T.textDark }}>
+            {activeCategory === 'All' ? "What's Cooking Now" : activeCategory}
+          </span>
+          {activeCategory === 'All' && (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={T.accentSalmon}>
+              <path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5 0.67z"/>
+            </svg>
+          )}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingBottom: 16 }}>
+          {listItems.length > 0 ? listItems.map(recipe => (
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onPress={onSelectRecipe}
+              isFav={favourites.includes(recipe.id)}
+              onToggleFav={onToggleFav}
+            />
+          )) : (
+            <div style={{ textAlign: 'center', padding: '32px 0', color: T.textLight, fontSize: 13 }}>
+              No {activeCategory} recipes yet.
+            </div>
+          )}
+        </div>
+      </div>
+
+      <BottomNav active="home" onTab={onNav} />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 2 · SEARCH
+// ─────────────────────────────────────────────
+function SearchScreen({ onNav, onSelectRecipe, favourites, onToggleFav }) {
+  const [query, setQuery] = React.useState('');
+  const recentSearches = ['Hot & Spicy Shrimp', 'Katsu Curry', 'Pancakes'];
+  const categoryImgs = [
+    { label: 'Breakfast', img: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300&auto=format&fit=crop&q=80' },
+    { label: 'Dinner',    img: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=300&auto=format&fit=crop&q=80' },
+    { label: 'Drinks',    img: 'https://images.unsplash.com/photo-1517705008128-361805f42e86?w=300&auto=format&fit=crop&q=80' },
+    { label: 'Soup',      img: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=300&auto=format&fit=crop&q=80' },
+  ];
+  const q = query.trim().toLowerCase();
+  const results = q
+    ? RECIPES.filter(r =>
+        r.title.toLowerCase().includes(q) ||
+        r.category.toLowerCase().includes(q) ||
+        r.ingredients.some(i => i.toLowerCase().includes(q))
+      )
+    : [];
+
+  return (
+    <div style={{ background: T.bg, minHeight: '100%', fontFamily: 'Poppins, sans-serif' }}>
+      {/* Search header */}
+      <div style={{
+        background: `linear-gradient(160deg, #6B5C4D 0%, ${T.primary} 100%)`,
+        padding: '10px 16px 16px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            onClick={() => onNav('home')}
+            style={{
+              background: 'rgba(255,255,255,0.15)', border: 'none',
+              width: 36, height: 36, borderRadius: '50%', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+          </button>
+          {/* Active search input */}
+          <div style={{
+            flex: 1, background: '#fff', borderRadius: 14,
+            display: 'flex', alignItems: 'center', gap: 8, padding: '0 14px', height: 44,
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={T.primary}>
+              <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+            <input
+              autoFocus
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Find something delicious…"
+              style={{
+                flex: 1, border: 'none', background: 'none',
+                fontSize: 13, fontFamily: 'Poppins', color: T.textDark,
+              }}
+            />
+            {query && (
+              <button
+                onClick={() => setQuery('')}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 0 }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={T.textLight}>
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '18px 20px', paddingBottom: 80 }}>
+        {query === '' ? (
+          <>
+            {/* Recent searches */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: T.textLight, letterSpacing: '0.1em', marginBottom: 12 }}>RECENT SEARCHES</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {recentSearches.map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setQuery(s)}
+                    style={{
+                      background: '#fff', border: `1px solid ${T.divider}`, borderRadius: 20,
+                      padding: '7px 14px', fontSize: 12, fontWeight: 500, color: T.textMid,
+                      cursor: 'pointer', fontFamily: 'Poppins',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill={T.textLight}>
+                      <path d="M13 3a9 9 0 100 18A9 9 0 0013 3zm-1 5v6l4 2.5-.75 1.23L11 15V8h1zM1 13c0 2.3.8 4.4 2.1 6.1l1.4-1.4A7 7 0 013 13H1z"/>
+                    </svg>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Popular categories */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: T.textLight, letterSpacing: '0.1em', marginBottom: 12 }}>POPULAR CATEGORIES</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {categoryImgs.map(cat => (
+                  <div
+                    key={cat.label}
+                    onClick={() => setQuery(cat.label)}
+                    style={{
+                      borderRadius: 16, overflow: 'hidden', position: 'relative',
+                      height: 80, cursor: 'pointer', boxShadow: '0 2px 8px rgba(45,38,32,0.08)',
+                    }}
+                  >
+                    <img src={cat.img} alt={cat.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,20,14,0.38)' }} />
+                    <span style={{ position: 'absolute', bottom: 8, left: 10, fontSize: 13, fontWeight: 700, color: '#fff' }}>
+                      {cat.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {results.length > 0 ? (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 700, color: T.textLight, letterSpacing: '0.1em', marginBottom: 14 }}>
+                  {results.length} RESULT{results.length !== 1 ? 'S' : ''} FOR "{query.toUpperCase()}"
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {results.map(recipe => (
+                    <RecipeCard
+                      key={recipe.id}
+                      recipe={recipe}
+                      onPress={onSelectRecipe}
+                      isFav={favourites.includes(recipe.id)}
+                      onToggleFav={onToggleFav}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <svg width="52" height="52" viewBox="0 0 24 24" fill={T.chipBg} style={{ display: 'block', margin: '0 auto 16px' }}>
+                  <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <div style={{ fontSize: 15, fontWeight: 700, color: T.textDark, marginBottom: 6 }}>Nothing found</div>
+                <div style={{ fontSize: 12, color: T.textLight, lineHeight: 1.7 }}>
+                  Try a recipe name, category,<br />or ingredient like "garlic" or "eggs".
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <BottomNav active="search" onTab={onNav} />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 3 · RECIPE DETAIL
+// ─────────────────────────────────────────────
+function RecipeDetailScreen({ recipe, onNav, onBack, favourites, onToggleFav }) {
+  const isFav = favourites.includes(recipe.id);
+
+  return (
+    <div style={{ background: T.bg, minHeight: '100%', fontFamily: 'Poppins, sans-serif', position: 'relative' }}>
+      {/* Hero image */}
+      <div style={{ position: 'relative', height: 280 }}>
+        <img src={recipe.imageUrl} alt={recipe.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 45%, rgba(0,0,0,0.08) 100%)' }} />
+
+        {/* Back */}
+        <button
+          onClick={onBack}
+          style={{
+            position: 'absolute', top: 10, left: 16,
+            width: 38, height: 38, borderRadius: '50%',
+            background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.3)',
+            backdropFilter: 'blur(8px)', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+        </button>
+
+        {/* Favourite toggle */}
+        <button
+          onClick={() => onToggleFav(recipe.id)}
+          style={{
+            position: 'absolute', top: 10, right: 16,
+            width: 38, height: 38, borderRadius: '50%',
+            background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.3)',
+            backdropFilter: 'blur(8px)', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={isFav ? T.accentSalmon : 'white'}>
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+
+        {/* Floating ingredient tags */}
+        {recipe.ingredients.slice(0, 3).map((ing, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              top:   [80, 160, 205][i],
+              left:  [20, null, 24][i],
+              right: [null, 20, null][i],
+              background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(8px)',
+              borderRadius: 20, padding: '5px 12px',
+              fontSize: 11, fontWeight: 600, color: T.textDark,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.12)', whiteSpace: 'nowrap',
+            }}
+          >{ing}</div>
+        ))}
+      </div>
+
+      {/* Detail sheet */}
+      <div style={{
+        background: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+        marginTop: -20, padding: '18px 20px 24px', position: 'relative', zIndex: 5,
+      }}>
+        <div style={{ width: 36, height: 4, background: T.chipBg, borderRadius: 2, margin: '0 auto 14px' }} />
+
+        {/* Prep badge */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#FFF1EB', borderRadius: 20, padding: '5px 12px', marginBottom: 12 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill={T.accentSalmon}><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 18a8 8 0 110-16 8 8 0 010 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+          <span style={{ fontSize: 12, fontWeight: 600, color: T.accentSalmon }}>{recipe.prepTime}</span>
+        </div>
+
+        <div style={{ fontSize: 20, fontWeight: 700, color: T.textDark, lineHeight: 1.2, marginBottom: 8 }}>{recipe.title}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <Stars rating={recipe.rating} size={14} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: T.textMid }}>{recipe.rating}</span>
+          <span style={{ fontSize: 11, color: T.textLight }}>· {recipe.servings} Servings</span>
+          <span style={{ fontSize: 11, color: T.textLight }}>· {recipe.calories}</span>
+        </div>
+        <div style={{ fontSize: 12, color: T.textLight, lineHeight: 1.65, marginBottom: 20 }}>{recipe.description}</div>
+
+        {/* Nutrition */}
+        <div style={{ fontSize: 13, fontWeight: 700, color: T.textDark, marginBottom: 10 }}>Nutrition Facts</div>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+          {[
+            { label: 'Protein', value: recipe.proteins, color: '#5B9BD5', pct: 68 },
+            { label: 'Fats',    value: recipe.fats,     color: T.accentSalmon, pct: 44 },
+            { label: 'Carbs',   value: recipe.carbs,    color: T.accentAmber, pct: 80 },
+          ].map(n => (
+            <div key={n.label} style={{ flex: 1, background: T.bgMuted, borderRadius: 14, padding: '10px 10px 12px', textAlign: 'center' }}>
+              <div style={{ width: '100%', height: 4, background: '#E5E0DB', borderRadius: 4, marginBottom: 8, overflow: 'hidden' }}>
+                <div style={{ width: `${n.pct}%`, height: '100%', background: n.color, borderRadius: 4 }} />
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: T.textDark }}>{n.value}</div>
+              <div style={{ fontSize: 10, color: T.textLight, marginTop: 2 }}>{n.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Ingredients */}
+        <div style={{ fontSize: 13, fontWeight: 700, color: T.textDark, marginBottom: 10 }}>Ingredients</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+          {recipe.ingredients.map((ing, i) => (
+            <span key={i} style={{ padding: '5px 12px', background: T.bgMuted, borderRadius: 20, fontSize: 11, fontWeight: 600, color: T.textMid }}>{ing}</span>
+          ))}
+        </div>
+
+        {/* Steps preview strip */}
+        <div style={{ fontSize: 13, fontWeight: 700, color: T.textDark, marginBottom: 10 }}>
+          {recipe.steps.length} Steps · {recipe.prepTime}
+        </div>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8, marginBottom: 22 }}>
+          {recipe.steps.map((step, i) => (
+            <div key={i} style={{ flexShrink: 0, width: 96, background: T.bgMuted, borderRadius: 14, padding: '10px 10px 12px' }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: '50%',
+                background: T.primary, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', marginBottom: 6,
+              }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>{i + 1}</span>
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: T.textDark, lineHeight: 1.3, marginBottom: 3 }}>{step.title}</div>
+              <div style={{ fontSize: 9, color: T.textLight }}>{step.duration}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Start Cooking CTA */}
+        <button
+          onClick={() => onNav('cooking')}
+          style={{
+            width: '100%', padding: '15px',
+            background: `linear-gradient(135deg, ${T.primary} 0%, #6B5C4D 100%)`,
+            border: 'none', borderRadius: 16, color: '#fff',
+            fontSize: 14, fontWeight: 700, fontFamily: 'Poppins',
+            cursor: 'pointer', letterSpacing: '0.02em',
+            boxShadow: `0 6px 20px ${T.primary}55`,
+          }}
+        >
+          Start Cooking →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 4 · START COOKING (step-by-step mode)
+// ─────────────────────────────────────────────
+function StartCookingScreen({ recipe, onDone }) {
+  const [stepIndex, setStepIndex] = React.useState(0);
+  const [checked, setChecked] = React.useState([]);
+  const [finished, setFinished] = React.useState(false);
+  const steps = recipe.steps;
+  const current = steps[stepIndex];
+  const isLast = stepIndex === steps.length - 1;
+
+  const toggleIngredient = ing =>
+    setChecked(prev => prev.includes(ing) ? prev.filter(i => i !== ing) : [...prev, ing]);
+
+  if (finished) {
+    return (
+      <div style={{
+        background: T.bg, minHeight: '100%', fontFamily: 'Poppins, sans-serif',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', padding: '32px 24px', textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 72, marginBottom: 20, lineHeight: 1 }}>🎉</div>
+        <div style={{
+          fontFamily: "'Playfair Display', serif", fontStyle: 'italic',
+          fontSize: 28, fontWeight: 600, color: T.textDark, marginBottom: 8,
+        }}>Dish Complete!</div>
+        <div style={{ fontSize: 13, color: T.textLight, lineHeight: 1.75, marginBottom: 28 }}>
+          You've finished cooking<br />
+          <span style={{ fontWeight: 700, color: T.primary }}>{recipe.title}</span>.<br />
+          Time to enjoy your meal!
+        </div>
+        <div style={{ width: 88, height: 88, borderRadius: '50%', overflow: 'hidden', marginBottom: 28, boxShadow: `0 8px 24px ${T.primary}40` }}>
+          <img src={recipe.imageUrl} alt={recipe.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+        <button
+          onClick={onDone}
+          style={{
+            padding: '14px 40px',
+            background: `linear-gradient(135deg, ${T.primary}, #6B5C4D)`,
+            border: 'none', borderRadius: 16, color: '#fff',
+            fontSize: 14, fontWeight: 700, fontFamily: 'Poppins',
+            cursor: 'pointer', boxShadow: `0 6px 20px ${T.primary}50`,
+          }}
+        >
+          Back to Recipe
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ background: '#fff', minHeight: '100%', fontFamily: 'Poppins, sans-serif' }}>
+      {/* Top bar — dark, immersive */}
+      <div style={{ background: T.textDark, padding: '10px 20px 14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <button
+            onClick={onDone}
+            style={{
+              background: 'rgba(255,255,255,0.1)', border: 'none',
+              width: 36, height: 36, borderRadius: 10, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em', marginBottom: 2 }}>NOW COOKING</div>
+            <div style={{
+              fontSize: 13, color: '#fff', fontWeight: 700,
+              maxWidth: 180, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+            }}>{recipe.title}</div>
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.55)', minWidth: 36, textAlign: 'right' }}>
+            {stepIndex + 1}/{steps.length}
+          </div>
+        </div>
+        {/* Progress bar */}
+        <div style={{ width: '100%', height: 3, background: 'rgba(255,255,255,0.12)', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{
+            width: `${((stepIndex + 1) / steps.length) * 100}%`, height: '100%',
+            background: T.accentSalmon, borderRadius: 2, transition: 'width 0.35s ease',
+          }} />
+        </div>
+      </div>
+
+      {/* Step dot indicators */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 7, padding: '14px 20px 0' }}>
+        {steps.map((_, i) => (
+          <div
+            key={i}
+            onClick={() => setStepIndex(i)}
+            style={{
+              width: i === stepIndex ? 22 : 8, height: 8, borderRadius: 4,
+              background: i <= stepIndex ? T.primary : T.chipBg,
+              cursor: 'pointer', transition: 'all 0.25s ease',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Step content */}
+      <div style={{ padding: '18px 20px 0' }}>
+        {/* Step header */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 14 }}>
+          <div style={{
+            width: 46, height: 46, borderRadius: 14, flexShrink: 0,
+            background: `linear-gradient(135deg, ${T.primary}, ${T.primaryDeep})`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: '#fff' }}>{stepIndex + 1}</span>
+          </div>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.textLight, letterSpacing: '0.1em', marginBottom: 3 }}>
+              STEP {stepIndex + 1} OF {steps.length}
+            </div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: T.textDark, lineHeight: 1.25 }}>{current.title}</div>
+          </div>
+        </div>
+
+        {/* Duration pill */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#FFF1EB', borderRadius: 20, padding: '6px 14px', marginBottom: 14 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill={T.accentSalmon}>
+            <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 18a8 8 0 110-16 8 8 0 010 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
+          </svg>
+          <span style={{ fontSize: 12, fontWeight: 600, color: T.accentSalmon }}>{current.duration}</span>
+        </div>
+
+        {/* Step description */}
+        <div style={{
+          background: T.bgMuted, borderRadius: 18, padding: '16px 18px', marginBottom: 18,
+          fontSize: 13, color: T.textDark, lineHeight: 1.8,
+        }}>
+          {current.desc}
+        </div>
+
+        {/* Ingredient checklist (step 0 only) */}
+        {stepIndex === 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: T.textLight, letterSpacing: '0.1em', marginBottom: 10 }}>
+              GATHER YOUR INGREDIENTS
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {recipe.ingredients.map((ing, i) => {
+                const isChecked = checked.includes(ing);
+                return (
+                  <div
+                    key={i}
+                    onClick={() => toggleIngredient(ing)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+                      padding: '10px 14px', background: '#fff', borderRadius: 12,
+                      border: `1.5px solid ${isChecked ? T.primary + '35' : T.divider}`,
+                      transition: 'border-color 0.2s',
+                    }}
+                  >
+                    <div style={{
+                      width: 20, height: 20, borderRadius: 6, flexShrink: 0,
+                      border: `2px solid ${isChecked ? T.primary : '#D8D3CE'}`,
+                      background: isChecked ? T.primary : 'transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      transition: 'all 0.18s',
+                    }}>
+                      {isChecked && (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      )}
+                    </div>
+                    <span style={{
+                      fontSize: 12, fontWeight: 500,
+                      color: isChecked ? T.textLight : T.textDark,
+                      textDecoration: isChecked ? 'line-through' : 'none',
+                      transition: 'all 0.18s',
+                    }}>{ing}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Prev / Next navigation */}
+      <div style={{ padding: '0 20px 24px', display: 'flex', gap: 12 }}>
+        {stepIndex > 0 && (
+          <button
+            onClick={() => setStepIndex(s => s - 1)}
+            style={{
+              padding: '14px 20px', background: T.bgMuted, border: 'none',
+              borderRadius: 14, fontSize: 13, fontWeight: 700, fontFamily: 'Poppins',
+              cursor: 'pointer', color: T.textMid,
+              display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill={T.textMid}>
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            Prev
+          </button>
+        )}
+        <button
+          onClick={() => isLast ? setFinished(true) : setStepIndex(s => s + 1)}
+          style={{
+            flex: 1, padding: '14px',
+            background: isLast
+              ? `linear-gradient(135deg, ${T.accentSalmon}, #C85A3C)`
+              : `linear-gradient(135deg, ${T.primary}, ${T.primaryDeep})`,
+            border: 'none', borderRadius: 14, color: '#fff',
+            fontSize: 13, fontWeight: 700, fontFamily: 'Poppins',
+            cursor: 'pointer',
+            boxShadow: `0 4px 16px ${isLast ? T.accentSalmon : T.primary}50`,
+          }}
+        >
+          {isLast
+            ? '🎉 Finish Cooking!'
+            : `Next: ${steps[stepIndex + 1]?.title} →`}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 5 · FAVOURITES
+// ─────────────────────────────────────────────
+function FavouritesScreen({ onNav, onSelectRecipe, favourites, onToggleFav }) {
+  const favRecipes = RECIPES.filter(r => favourites.includes(r.id));
+
+  return (
+    <div style={{ background: T.bg, minHeight: '100%', fontFamily: 'Poppins, sans-serif' }}>
+      {/* Header */}
+      <div style={{
+        background: `linear-gradient(155deg, ${T.textDark} 0%, #4A3B30 100%)`,
+        borderBottomLeftRadius: 28, borderBottomRightRadius: 28,
+        padding: '12px 20px 24px',
+      }}>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.1em', marginBottom: 6 }}>
+          YOUR COLLECTION
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+          <div style={{
+            fontFamily: "'Playfair Display', serif", fontStyle: 'italic',
+            fontSize: 26, fontWeight: 600, color: '#fff',
+          }}>Favourites</div>
+          {favRecipes.length > 0 && (
+            <div style={{
+              background: T.accentSalmon, borderRadius: 20, padding: '2px 9px',
+              fontSize: 12, fontWeight: 700, color: '#fff',
+            }}>
+              {favRecipes.length}
+            </div>
+          )}
+        </div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+          {favRecipes.length === 0
+            ? 'No saved recipes yet'
+            : `${favRecipes.length} recipe${favRecipes.length !== 1 ? 's' : ''} saved`}
+        </div>
+      </div>
+
+      {/* Recipe list or empty state */}
+      <div style={{ padding: '20px 20px', paddingBottom: 80 }}>
+        {favRecipes.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '52px 20px' }}>
+            <svg width="60" height="60" viewBox="0 0 24 24" fill={T.chipBg} style={{ display: 'block', margin: '0 auto 16px' }}>
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <div style={{ fontSize: 15, fontWeight: 700, color: T.textDark, marginBottom: 8 }}>No saved recipes yet</div>
+            <div style={{ fontSize: 12, color: T.textLight, lineHeight: 1.7, marginBottom: 24 }}>
+              Tap the ❤ icon on any recipe<br />to add it to your collection.
+            </div>
+            <button
+              onClick={() => onNav('home')}
+              style={{
+                padding: '12px 28px',
+                background: `linear-gradient(135deg, ${T.primary}, ${T.primaryDeep})`,
+                border: 'none', borderRadius: 14, color: '#fff',
+                fontSize: 13, fontWeight: 700, fontFamily: 'Poppins', cursor: 'pointer',
+              }}
+            >
+              Explore Recipes
+            </button>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: 11, fontWeight: 700, color: T.textLight, letterSpacing: '0.1em', marginBottom: 14 }}>
+              SAVED RECIPES
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {favRecipes.map(recipe => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  onPress={onSelectRecipe}
+                  isFav={true}
+                  onToggleFav={onToggleFav}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <BottomNav active="favourites" onTab={onNav} />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 6 · PROFILE  (Saved count is live)
+// ─────────────────────────────────────────────
+function ProfileScreen({ onNav, favourites }) {
+  const menuItems = [
+    { icon: 'person',   label: 'Edit Profile',       desc: 'Update your info',                  action: null         },
+    { icon: 'bell',     label: 'Notifications',       desc: 'Alerts & updates',                  action: null         },
+    { icon: 'heart',    label: 'Favourite Recipes',   desc: `${favourites.length} saved recipes`, action: 'favourites' },
+    { icon: 'support',  label: 'Help & Support',      desc: 'FAQ & contact',                     action: null         },
+    { icon: 'settings', label: 'Settings',            desc: 'App preferences',                   action: null         },
+  ];
+
+  const menuIconPaths = {
+    person:   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>,
+    bell:     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>,
+    heart:    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>,
+    support:  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>,
+    settings: <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.58 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>,
+  };
+
+  return (
+    <div style={{ background: '#fff', minHeight: '100%', fontFamily: 'Poppins, sans-serif' }}>
+      <div style={{
+        background: `linear-gradient(155deg, ${T.textDark} 0%, #4A3B30 100%)`,
+        borderBottomLeftRadius: 28, borderBottomRightRadius: 28, padding: '12px 20px 24px',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <button style={{ background: 'rgba(255,255,255,0.12)', border: 'none', width: 36, height: 36, borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Profile</span>
+          <button style={{ background: 'rgba(255,255,255,0.12)', border: 'none', width: 36, height: 36, borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          </button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 22 }}>
+          <div style={{ width: 80, height: 80, borderRadius: '50%', overflow: 'hidden', border: '3px solid rgba(255,255,255,0.3)', marginBottom: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}>
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80" alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 3 }}>Aziz Karimov</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>aziz.karimov@mail.com</div>
+        </div>
+        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.09)', borderRadius: 16, overflow: 'hidden' }}>
+          {[
+            { label: 'Recipes', value: '47' },
+            { label: 'Saved',   value: String(favourites.length) },
+            { label: 'Cooked',  value: '23' },
+          ].map((s, i) => (
+            <div key={i} style={{ flex: 1, padding: '12px 8px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: '20px 20px 8px' }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: T.textLight, letterSpacing: '0.1em', marginBottom: 12 }}>ACCOUNT</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {menuItems.map((item, i) => (
+            <div
+              key={i}
+              onClick={() => item.action && onNav(item.action)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 14,
+                padding: '11px 12px', borderRadius: 14,
+                cursor: item.action ? 'pointer' : 'default',
+                background: item.action ? `${T.bgMuted}90` : 'transparent',
+              }}
+            >
+              <div style={{ width: 42, height: 42, borderRadius: 13, background: T.bgMuted, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={T.primary}>
+                  {menuIconPaths[item.icon]}
+                </svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: T.textDark }}>{item.label}</div>
+                <div style={{ fontSize: 11, color: T.textLight, marginTop: 1 }}>{item.desc}</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={T.textLight}>
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
+              </svg>
+            </div>
+          ))}
+        </div>
+
+        {/* Log out */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 14,
+          padding: '11px 12px', borderRadius: 14, cursor: 'pointer',
+          marginTop: 6, background: '#FFF1EB',
+        }}>
+          <div style={{ width: 42, height: 42, borderRadius: 13, background: '#FFE5D9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={T.accentSalmon}>
+              <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+            </svg>
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: T.accentSalmon }}>Log out</span>
+        </div>
+      </div>
+
+      <BottomNav active="profile" onTab={onNav} />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// APP PHONE  — single state machine for all navigation
+// ─────────────────────────────────────────────
+function AppPhone() {
+  const [history, setHistory] = React.useState(['home']);
+  const [selectedRecipe, setSelectedRecipe] = React.useState(RECIPES[1]); // katsu default
+  const [favourites, setFavourites] = React.useState(['katsu']); // one pre-seeded
+
+  const screen = history[history.length - 1];
+
+  function navigate(to) {
+    // Tab-level destinations reset the history stack
+    if (['home', 'search', 'favourites', 'profile'].includes(to)) {
+      setHistory([to]);
+    } else {
+      setHistory(prev => [...prev, to]);
+    }
+  }
+
+  function goBack() {
+    setHistory(prev => prev.length > 1 ? prev.slice(0, -1) : prev);
+  }
+
+  function openRecipe(recipe) {
+    setSelectedRecipe(recipe);
+    setHistory(prev => [...prev, 'detail']);
+  }
+
+  function toggleFav(id) {
+    setFavourites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+  }
+
+  // Status bar colour
+  const lightStatusScreens = ['detail', 'cooking', 'profile', 'favourites'];
+  const statusColor = lightStatusScreens.includes(screen) ? '#fff' : '#000';
+
+  const sharedProps = {
+    onNav: navigate,
+    favourites,
+    onToggleFav: toggleFav,
+    onSelectRecipe: openRecipe,
+  };
+
+  return (
+    <IosFrame time="9:41" statusColor={statusColor} width={393} height={790}>
+      {screen === 'home'       && <HomeScreen        {...sharedProps} />}
+      {screen === 'search'     && <SearchScreen      {...sharedProps} />}
+      {screen === 'detail'     && <RecipeDetailScreen {...sharedProps} recipe={selectedRecipe} onBack={goBack} />}
+      {screen === 'cooking'    && <StartCookingScreen recipe={selectedRecipe} onDone={goBack} />}
+      {screen === 'favourites' && <FavouritesScreen  {...sharedProps} />}
+      {screen === 'profile'    && <ProfileScreen     onNav={navigate} favourites={favourites} />}
+    </IosFrame>
+  );
+}
+
+// ─────────────────────────────────────────────
+// ROOT — canvas with header + flow hints
+// ─────────────────────────────────────────────
+function App() {
+  const hints = [
+    { icon: '🏠', text: 'Tap search bar → Search' },
+    { icon: '🔍', text: 'Type to filter recipes live' },
+    { icon: '📖', text: 'Tap any card → Recipe Detail' },
+    { icon: '❤️', text: 'Tap heart → Favourites tab updates' },
+    { icon: '🍳', text: '"Start Cooking" → Step-by-step mode' },
+    { icon: '✅', text: 'Check ingredients, navigate steps' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+      {/* Canvas header */}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, alignSelf: 'flex-start', padding: '0 20px 20px', maxWidth: 500 }}>
+        <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, color: '#f0ebe3', letterSpacing: '0.01em' }}>
+          Food Recipe App
+        </span>
+        <span style={{ fontSize: 12, color: 'rgba(240,235,227,0.4)', letterSpacing: '0.06em', fontFamily: 'Poppins' }}>
+          Interactive Flow · 6 Screens · May 2026
+        </span>
+      </div>
+
+      {/* Flow hint pills */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', padding: '0 20px 28px', maxWidth: 500 }}>
+        {hints.map(h => (
+          <span
+            key={h.text}
+            style={{
+              fontSize: 11, color: 'rgba(240,235,227,0.5)',
+              background: 'rgba(255,255,255,0.06)',
+              borderRadius: 8, padding: '4px 10px', fontFamily: 'Poppins',
+            }}
+          >
+            {h.icon} {h.text}
+          </span>
+        ))}
+      </div>
+
+      <AppPhone />
+
+      <div style={{
+        marginTop: 28, fontSize: 11, color: 'rgba(240,235,227,0.2)',
+        letterSpacing: '0.12em', fontFamily: 'monospace',
+      }}>
+        Created by Huashu-Design
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+</script>
+</body>
+</html>

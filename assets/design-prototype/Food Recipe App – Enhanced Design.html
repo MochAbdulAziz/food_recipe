@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Recipe App — Enhanced Design · Huashu-Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1410;
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      overflow-x: auto;
+    }
+    /* Canvas header */
+    .canvas-header {
+      padding: 40px 60px 28px;
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+    }
+    .canvas-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #f0ebe3;
+      letter-spacing: 0.01em;
+    }
+    .canvas-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      color: rgba(240,235,227,0.45);
+      letter-spacing: 0.06em;
+      font-weight: 400;
+    }
+    /* Screen labels */
+    .screen-label {
+      font-size: 11px;
+      color: rgba(240,235,227,0.4);
+      letter-spacing: 0.12em;
+      font-weight: 500;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-family: 'Poppins', sans-serif;
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="canvas-header">
+  <span class="canvas-title">Food Recipe App</span>
+  <span class="canvas-subtitle">Enhanced Design · Overview · 3 Screens · May 2026</span>
+</div>
+
+<script type="text/babel">
+
+// ─────────────────────────────────────────────
+// DESIGN TOKENS — extracted & elevated from Flutter app
+// ─────────────────────────────────────────────
+const tokens = {
+  // Core palette (kept from existing, enriched)
+  primary:       '#8D7B68',   // warm brown — unchanged
+  primaryDeep:   '#6B5C4D',   // deeper warm brown for AppBar
+  primaryLight:  '#A89880',   // lighter for hover states
+  bg:            '#F8F7F5',   // soft beige — unchanged
+  bgCard:        '#FFFFFF',
+  bgMuted:       '#F0ECE7',   // slightly warmer muted
+  textDark:      '#2D2620',   // dark brown-grey — unchanged
+  textMid:       '#6B5C4D',
+  textLight:     '#A89880',
+  textWhite:     '#FFFFFF',
+  // Accent — amber/golden replaces flat accentRed for ratings
+  accentAmber:   '#C8871A',   // warm amber for stars / badges
+  accentSalmon:  '#E07B5C',   // warm salmon for heart / prep time badge
+  // Category chips
+  chipBg:        '#EDE8E3',
+  chipActive:    '#8D7B68',
+  // Divider
+  divider:       'rgba(45,38,32,0.08)',
+};
+
+// ─────────────────────────────────────────────
+// IOS FRAME  (inlined from assets/ios_frame.jsx)
+// ─────────────────────────────────────────────
+const iosFrameStyles = {
+  wrapper: {
+    display: 'inline-block',
+    padding: 12,
+    background: '#1a1410',
+    borderRadius: 60,
+    boxShadow: '0 0 0 2px #2d2218, 0 24px 72px rgba(0,0,0,0.55)',
+    position: 'relative',
+  },
+  screen: {
+    position: 'relative',
+    borderRadius: 48,
+    overflow: 'hidden',
+    background: '#fff',
+  },
+  statusBar: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0,
+    height: 54,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 32px',
+    fontSize: 15,
+    fontWeight: 600,
+    fontFamily: '-apple-system, "SF Pro Text", sans-serif',
+    zIndex: 20,
+    pointerEvents: 'none',
+  },
+  dynamicIsland: {
+    position: 'absolute',
+    top: 12, left: '50%',
+    transform: 'translateX(-50%)',
+    width: 124, height: 36,
+    background: '#000',
+    borderRadius: 999,
+    zIndex: 30,
+  },
+  statusIcons: { display: 'flex', alignItems: 'center', gap: 6 },
+  signalIcon: { display: 'flex', alignItems: 'flex-end', gap: 2, height: 12 },
+  signalBar: { width: 3, background: 'currentColor', borderRadius: 1 },
+  batteryIcon: {
+    width: 26, height: 12,
+    border: '1.5px solid currentColor',
+    borderRadius: 3,
+    padding: 1,
+    position: 'relative',
+    opacity: 0.8,
+  },
+  batteryCap: {
+    position: 'absolute',
+    top: 3, right: -3,
+    width: 2, height: 6,
+    background: 'currentColor',
+    borderRadius: '0 1px 1px 0',
+  },
+  content: {
+    position: 'absolute',
+    top: 54, left: 0, right: 0, bottom: 34,
+    overflowY: 'auto',
+    overflowX: 'hidden',
+  },
+  homeIndicator: {
+    position: 'absolute',
+    bottom: 10, left: '50%',
+    transform: 'translateX(-50%)',
+    width: 140, height: 5,
+    background: 'rgba(0,0,0,0.22)',
+    borderRadius: 999,
+    zIndex: 10,
+  },
+};
+
+function IosFrame({ children, width = 393, height = 852, time = '9:41', battery = 84, darkMode = false, statusColor }) {
+  const textColor = statusColor || (darkMode ? '#fff' : '#000');
+  return (
+    <div style={iosFrameStyles.wrapper}>
+      <div style={{ ...iosFrameStyles.screen, width, height, background: darkMode ? '#000' : '#fff' }}>
+        {/* Status Bar */}
+        <div style={{ ...iosFrameStyles.statusBar, color: textColor }}>
+          <span>{time}</span>
+          <div style={iosFrameStyles.statusIcons}>
+            <div style={iosFrameStyles.signalIcon}>
+              <div style={{ ...iosFrameStyles.signalBar, height: 4 }} />
+              <div style={{ ...iosFrameStyles.signalBar, height: 6 }} />
+              <div style={{ ...iosFrameStyles.signalBar, height: 9 }} />
+              <div style={{ ...iosFrameStyles.signalBar, height: 11 }} />
+            </div>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+              <path d="M8 11.5a1 1 0 100-2 1 1 0 000 2z" fill={textColor} />
+              <path d="M3 7.5a7 7 0 0110 0" stroke={textColor} strokeWidth="1.3" fill="none" strokeLinecap="round" />
+              <path d="M1 4.5a11 11 0 0114 0" stroke={textColor} strokeWidth="1.3" fill="none" strokeLinecap="round" opacity="0.6" />
+            </svg>
+            <div style={{ ...iosFrameStyles.batteryIcon, color: textColor }}>
+              <div style={{ width: `${battery}%`, height: '100%', background: textColor, borderRadius: 1, opacity: 0.9 }} />
+              <div style={{ ...iosFrameStyles.batteryCap, background: textColor }} />
+            </div>
+          </div>
+        </div>
+        {/* Dynamic Island */}
+        <div style={iosFrameStyles.dynamicIsland} />
+        {/* App content */}
+        <div style={iosFrameStyles.content}>{children}</div>
+        {/* Home Indicator */}
+        <div style={{ ...iosFrameStyles.homeIndicator, background: darkMode ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.22)' }} />
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// STAR RATING
+// ─────────────────────────────────────────────
+function StarRating({ rating, size = 13 }) {
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+      {[1,2,3,4,5].map(i => (
+        <svg key={i} width={size} height={size} viewBox="0 0 12 12" fill="none">
+          <path
+            d="M6 1l1.39 2.82 3.11.45-2.25 2.19.53 3.1L6 8.02l-2.78 1.54.53-3.1L1.5 4.27l3.11-.45L6 1z"
+            fill={i <= full ? tokens.accentAmber : (i === full+1 && half ? 'url(#half)' : '#DDD8D2')}
+          />
+          {i === full+1 && half && (
+            <defs>
+              <linearGradient id="half" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="50%" stopColor={tokens.accentAmber} />
+                <stop offset="50%" stopColor="#DDD8D2" />
+              </linearGradient>
+            </defs>
+          )}
+        </svg>
+      ))}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────────
+// BOTTOM NAV BAR
+// ─────────────────────────────────────────────
+function BottomNav({ active = 'home', onTab }) {
+  return (
+    <div style={{
+      position: 'sticky',
+      bottom: 0,
+      left: 0, right: 0,
+      background: '#fff',
+      borderTop: `1px solid ${tokens.divider}`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      paddingBottom: 4,
+      height: 62,
+      zIndex: 100,
+    }}>
+      {/* Home */}
+      <button onClick={() => onTab && onTab('home')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '6px 20px' }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill={active === 'home' ? tokens.primary : '#C8C0B8'}>
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        <span style={{ fontSize: 10, fontWeight: 600, color: active === 'home' ? tokens.primary : '#C8C0B8', fontFamily: 'Poppins' }}>Home</span>
+      </button>
+      {/* FAB */}
+      <div style={{
+        width: 52, height: 52,
+        background: `linear-gradient(145deg, ${tokens.primaryLight}, ${tokens.primary})`,
+        borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: `0 4px 16px ${tokens.primary}60`,
+        cursor: 'pointer',
+        marginTop: -18,
+        border: '3px solid #fff',
+      }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+          <path d="M18.06 22.99h1.66c.84 0 1.53-.64 1.63-1.46L23 5.05h-5V1h-1.97v4.05h-4.97l.3 2.34c1.71.47 3.31 1.32 4.27 2.26 1.44 1.42 2.43 2.89 2.43 5.29v8.05zM1 21.99V21h15.03v.99c0 .55-.45 1-1.01 1H2.01c-.56 0-1.01-.45-1.01-1zm15.03-7c0-4.5-6.72-5.74-8.28-2.06-.39.89-.55 1.78-.55 2.06H16.03zM4.5 11.5c.41-1.32 1.26-2.5 2.75-3.24L4.5 2H3L4.5 11.5z"/>
+        </svg>
+      </div>
+      {/* Profile */}
+      <button onClick={() => onTab && onTab('profile')} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, padding: '6px 20px' }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill={active === 'profile' ? tokens.primary : '#C8C0B8'}>
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+        <span style={{ fontSize: 10, fontWeight: 600, color: active === 'profile' ? tokens.primary : '#C8C0B8', fontFamily: 'Poppins' }}>Profile</span>
+      </button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 1 · HOME
+// ─────────────────────────────────────────────
+function HomeScreen() {
+  const [activeCategory, setActiveCategory] = React.useState('All');
+  const categories = ['All', 'Soup', 'Breakfast', 'Drinks', 'Dinner'];
+
+  const featuredItem = {
+    title: 'Hot & Spicy Shrimp Rice',
+    rating: 5.0,
+    prepTime: '20 Min',
+    category: 'Dinner',
+    imageUrl: 'https://images.unsplash.com/photo-1552590635-27c2c2128abf?w=800&auto=format&fit=crop&q=80',
+  };
+
+  const foodItems = [
+    {
+      title: 'Japanese Katsu Curry',
+      description: 'Crispy katsu and aromatic curry sauce, crafted for true comfort.',
+      rating: 4.7,
+      prepTime: '30 Min',
+      imageUrl: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=600&auto=format&fit=crop&q=80',
+    },
+    {
+      title: 'Classic Egg Toast',
+      description: 'Buttery toast layered with perfectly cooked eggs.',
+      rating: 4.5,
+      prepTime: '10 Min',
+      imageUrl: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&auto=format&fit=crop&q=80',
+    },
+    {
+      title: 'Creamy Tomato Soup',
+      description: 'Rich and creamy tomato soup, perfect for a cozy evening.',
+      rating: 4.6,
+      prepTime: '25 Min',
+      imageUrl: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&auto=format&fit=crop&q=80',
+    },
+  ];
+
+  return (
+    <div style={{ background: tokens.bg, minHeight: '100%', fontFamily: 'Poppins, sans-serif' }}>
+      {/* ── Header (AppBar) ── */}
+      <div style={{
+        background: `linear-gradient(160deg, #6B5C4D 0%, ${tokens.primary} 100%)`,
+        borderBottomLeftRadius: 28,
+        borderBottomRightRadius: 28,
+        padding: '12px 20px 20px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Subtle texture circles */}
+        <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -20, left: 40, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+
+        {/* Greeting row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', fontWeight: 400, letterSpacing: '0.01em' }}>Good morning</div>
+            <div style={{ fontSize: 20, color: '#fff', fontWeight: 700, lineHeight: 1.2 }}>Hi, Aziz 👋</div>
+          </div>
+          <div style={{
+            width: 40, height: 40,
+            borderRadius: '50%',
+            overflow: 'hidden',
+            border: '2px solid rgba(255,255,255,0.35)',
+          }}>
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80" alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        </div>
+
+        <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)', fontWeight: 400, lineHeight: 1.4, marginBottom: 16 }}>
+          Craving something<br /><em style={{ fontStyle: 'italic', fontWeight: 300 }}>delicious</em> today?
+        </div>
+
+        {/* Search bar */}
+        <div style={{
+          background: '#fff',
+          borderRadius: 14,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '0 14px',
+          height: 46,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#B0A899">
+            <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <span style={{ fontSize: 13, color: '#C0B8AE', fontWeight: 400 }}>Find something delicious…</span>
+          <div style={{ marginLeft: 'auto', width: 32, height: 32, background: tokens.bgMuted, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={tokens.textMid}>
+              <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Category Tabs ── */}
+      <div style={{ padding: '18px 20px 0', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                display: 'inline-block',
+                padding: '7px 16px',
+                borderRadius: 20,
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 12,
+                fontWeight: 600,
+                fontFamily: 'Poppins',
+                background: activeCategory === cat ? tokens.primary : tokens.chipBg,
+                color: activeCategory === cat ? '#fff' : tokens.textMid,
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+            >{cat}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Featured Hero Card ── */}
+      <div style={{ padding: '16px 20px 0' }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: tokens.textDark, marginBottom: 12, letterSpacing: '0.01em' }}>
+          ✦ Featured Recipe
+        </div>
+        <div style={{
+          borderRadius: 20,
+          overflow: 'hidden',
+          position: 'relative',
+          height: 180,
+          boxShadow: '0 8px 32px rgba(45,38,32,0.18)',
+        }}>
+          <img
+            src={featuredItem.imageUrl}
+            alt={featuredItem.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+          {/* Gradient overlay */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to top, rgba(28,20,14,0.88) 0%, rgba(28,20,14,0.2) 55%, transparent 100%)',
+          }} />
+          {/* Badge */}
+          <div style={{
+            position: 'absolute', top: 12, right: 12,
+            background: 'rgba(255,255,255,0.18)',
+            backdropFilter: 'blur(6px)',
+            borderRadius: 20,
+            padding: '4px 10px',
+            fontSize: 10,
+            fontWeight: 700,
+            color: '#fff',
+            letterSpacing: '0.08em',
+          }}>
+            {featuredItem.category.toUpperCase()}
+          </div>
+          {/* Info */}
+          <div style={{ position: 'absolute', bottom: 14, left: 14, right: 14 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: 6 }}>{featuredItem.title}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <StarRating rating={featuredItem.rating} size={12} />
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{featuredItem.rating}</span>
+              <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }} />
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)">
+                <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 18a8 8 0 110-16 8 8 0 010 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
+              </svg>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>{featuredItem.prepTime}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── What's Cooking Now ── */}
+      <div style={{ padding: '20px 20px 4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: tokens.textDark }}>What's Cooking Now</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill={tokens.accentSalmon}><path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5 0.67z"/></svg>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingBottom: 16 }}>
+          {foodItems.map((item, i) => (
+            <div key={i} style={{
+              display: 'flex',
+              gap: 14,
+              background: '#fff',
+              borderRadius: 18,
+              padding: 12,
+              boxShadow: '0 2px 12px rgba(45,38,32,0.07)',
+              alignItems: 'center',
+            }}>
+              {/* Image */}
+              <div style={{
+                width: 88,
+                height: 88,
+                borderRadius: 14,
+                overflow: 'hidden',
+                flexShrink: 0,
+              }}>
+                <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              {/* Details */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: tokens.textDark, lineHeight: 1.3, marginBottom: 4 }}>{item.title}</div>
+                <div style={{ fontSize: 11, color: tokens.textLight, lineHeight: 1.5, marginBottom: 8, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{item.description}</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <StarRating rating={item.rating} size={11} />
+                    <span style={{ fontSize: 10, fontWeight: 600, color: tokens.textMid }}>{item.rating}</span>
+                  </div>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 3,
+                    background: tokens.bgMuted, borderRadius: 8, padding: '3px 8px',
+                  }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill={tokens.textMid}><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm0 18a8 8 0 110-16 8 8 0 010 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: tokens.textMid }}>{item.prepTime}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <BottomNav active="home" />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 2 · RECIPE DETAIL
+// ─────────────────────────────────────────────
+function RecipeDetailScreen() {
+  const recipe = {
+    title: 'Japanese Katsu Curry',
+    description: 'A perfect balance of crispy katsu and aromatic curry sauce, crafted for true comfort. Served with steamed rice and pickled daikon.',
+    rating: 4.7,
+    prepTime: '30 Min',
+    servings: '2 Servings',
+    calories: '580 kcal',
+    proteins: '34 g',
+    fats: '22 g',
+    carbs: '68 g',
+    ingredients: ['Chicken Breast', 'Panko Crumbs', 'Curry Sauce', 'Steamed Rice', 'Daikon'],
+    imageUrl: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&auto=format&fit=crop&q=80',
+  };
+
+  const [saved, setSaved] = React.useState(false);
+
+  return (
+    <div style={{ background: tokens.bg, minHeight: '100%', fontFamily: 'Poppins, sans-serif', position: 'relative' }}>
+      {/* Hero Image */}
+      <div style={{ position: 'relative', height: 280 }}>
+        <img src={recipe.imageUrl} alt={recipe.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 50%, rgba(0,0,0,0.1) 100%)',
+        }} />
+        {/* Back button */}
+        <button style={{
+          position: 'absolute', top: 10, left: 16,
+          width: 38, height: 38,
+          borderRadius: '50%',
+          background: 'rgba(0,0,0,0.3)',
+          border: '1px solid rgba(255,255,255,0.3)',
+          backdropFilter: 'blur(8px)',
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        {/* Save button */}
+        <button
+          onClick={() => setSaved(!saved)}
+          style={{
+            position: 'absolute', top: 10, right: 16,
+            width: 38, height: 38,
+            borderRadius: '50%',
+            background: 'rgba(0,0,0,0.3)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            backdropFilter: 'blur(8px)',
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={saved ? tokens.accentSalmon : 'white'}>
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+        {/* Floating ingredient tags */}
+        {recipe.ingredients.slice(0,3).map((ing, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            top: [80, 160, 200][i],
+            left: [20, null, 24][i],
+            right: [null, 20, null][i],
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(8px)',
+            borderRadius: 20,
+            padding: '5px 12px',
+            fontSize: 11,
+            fontWeight: 600,
+            color: tokens.textDark,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+            whiteSpace: 'nowrap',
+          }}>
+            {ing}
+          </div>
+        ))}
+      </div>
+
+      {/* Detail Sheet */}
+      <div style={{
+        background: '#fff',
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        marginTop: -20,
+        padding: '22px 20px',
+        position: 'relative',
+        zIndex: 5,
+      }}>
+        {/* Prep badge */}
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+          background: '#FFF1EB',
+          borderRadius: 20,
+          padding: '5px 12px',
+          marginBottom: 12,
+        }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill={tokens.accentSalmon}><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <span style={{ fontSize: 12, fontWeight: 600, color: tokens.accentSalmon }}>{recipe.prepTime}</span>
+        </div>
+
+        {/* Title & Rating */}
+        <div style={{ fontSize: 20, fontWeight: 700, color: tokens.textDark, lineHeight: 1.2, marginBottom: 8 }}>{recipe.title}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <StarRating rating={recipe.rating} size={14} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: tokens.textMid }}>{recipe.rating}</span>
+          <span style={{ fontSize: 11, color: tokens.textLight }}>· {recipe.servings}</span>
+          <span style={{ fontSize: 11, color: tokens.textLight }}>· {recipe.calories}</span>
+        </div>
+
+        <div style={{ fontSize: 12, color: tokens.textLight, lineHeight: 1.6, marginBottom: 20 }}>{recipe.description}</div>
+
+        {/* Nutrition */}
+        <div style={{ fontSize: 13, fontWeight: 700, color: tokens.textDark, marginBottom: 12 }}>Nutrition Facts</div>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+          {[
+            { label: 'Protein', value: recipe.proteins, color: '#5B9BD5', pct: 68 },
+            { label: 'Fats', value: recipe.fats, color: tokens.accentSalmon, pct: 44 },
+            { label: 'Carbs', value: recipe.carbs, color: tokens.accentAmber, pct: 80 },
+          ].map(n => (
+            <div key={n.label} style={{ flex: 1, background: tokens.bgMuted, borderRadius: 14, padding: '10px 10px 12px', textAlign: 'center' }}>
+              {/* Mini bar */}
+              <div style={{ width: '100%', height: 4, background: '#E5E0DB', borderRadius: 4, marginBottom: 8, overflow: 'hidden' }}>
+                <div style={{ width: `${n.pct}%`, height: '100%', background: n.color, borderRadius: 4 }} />
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: tokens.textDark }}>{n.value}</div>
+              <div style={{ fontSize: 10, color: tokens.textLight, fontWeight: 500, marginTop: 2 }}>{n.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* All Ingredients */}
+        <div style={{ fontSize: 13, fontWeight: 700, color: tokens.textDark, marginBottom: 10 }}>Ingredients</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+          {recipe.ingredients.map((ing, i) => (
+            <span key={i} style={{
+              padding: '5px 12px',
+              background: tokens.bgMuted,
+              borderRadius: 20,
+              fontSize: 11,
+              fontWeight: 600,
+              color: tokens.textMid,
+            }}>{ing}</span>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <button style={{
+          width: '100%',
+          padding: '15px',
+          background: `linear-gradient(135deg, ${tokens.primary} 0%, #6B5C4D 100%)`,
+          border: 'none',
+          borderRadius: 16,
+          color: '#fff',
+          fontSize: 14,
+          fontWeight: 700,
+          fontFamily: 'Poppins',
+          cursor: 'pointer',
+          letterSpacing: '0.02em',
+          boxShadow: `0 6px 20px ${tokens.primary}55`,
+        }}>
+          Start Cooking
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SCREEN 3 · PROFILE
+// ─────────────────────────────────────────────
+function ProfileScreen() {
+  const stats = [
+    { label: 'Recipes', value: '47' },
+    { label: 'Saved', value: '128' },
+    { label: 'Cooked', value: '23' },
+  ];
+
+  const menuItems = [
+    { icon: 'person', label: 'Edit Profile', desc: 'Update your info' },
+    { icon: 'bell', label: 'Notifications', desc: 'Alerts & updates' },
+    { icon: 'heart', label: 'Favourite Recipes', desc: '128 saved recipes' },
+    { icon: 'support', label: 'Help & Support', desc: 'FAQ & contact' },
+    { icon: 'settings', label: 'Settings', desc: 'App preferences' },
+  ];
+
+  const menuIcons = {
+    person: <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>,
+    bell: <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>,
+    heart: <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>,
+    support: <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>,
+    settings: <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.58 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>,
+  };
+
+  return (
+    <div style={{ background: '#fff', minHeight: '100%', fontFamily: 'Poppins, sans-serif' }}>
+      {/* Dark header */}
+      <div style={{
+        background: `linear-gradient(155deg, ${tokens.textDark} 0%, #4A3B30 100%)`,
+        borderBottomLeftRadius: 28,
+        borderBottomRightRadius: 28,
+        padding: '12px 20px 24px',
+      }}>
+        {/* Top row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <button style={{ background: 'rgba(255,255,255,0.12)', border: 'none', width: 36, height: 36, borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+          </button>
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Profile</span>
+          <button style={{ background: 'rgba(255,255,255,0.12)', border: 'none', width: 36, height: 36, borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          </button>
+        </div>
+
+        {/* Avatar + name */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 22 }}>
+          <div style={{
+            width: 80, height: 80,
+            borderRadius: '50%',
+            overflow: 'hidden',
+            border: '3px solid rgba(255,255,255,0.3)',
+            marginBottom: 12,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          }}>
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80" alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 3 }}>Jane Cooper</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 400 }}>janeper01@gmail.com</div>
+        </div>
+
+        {/* Stats row */}
+        <div style={{
+          display: 'flex',
+          background: 'rgba(255,255,255,0.09)',
+          borderRadius: 16,
+          overflow: 'hidden',
+        }}>
+          {stats.map((s, i) => (
+            <div key={i} style={{
+              flex: 1,
+              padding: '12px 8px',
+              textAlign: 'center',
+              borderRight: i < stats.length-1 ? '1px solid rgba(255,255,255,0.1)' : 'none',
+            }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#fff' }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 500, marginTop: 2 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Menu items */}
+      <div style={{ padding: '20px 20px 8px' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: tokens.textLight, letterSpacing: '0.08em', marginBottom: 12 }}>ACCOUNT</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {menuItems.map((item, i) => (
+            <div key={i} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              padding: '12px 12px',
+              borderRadius: 14,
+              cursor: 'pointer',
+              background: 'transparent',
+            }}>
+              <div style={{
+                width: 42, height: 42,
+                borderRadius: 13,
+                background: tokens.bgMuted,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={tokens.primary}>
+                  {menuIcons[item.icon]}
+                </svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: tokens.textDark }}>{item.label}</div>
+                <div style={{ fontSize: 11, color: tokens.textLight, marginTop: 1 }}>{item.desc}</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={tokens.textLight}><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+            </div>
+          ))}
+        </div>
+
+        {/* Logout */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 14,
+          padding: '12px 12px',
+          borderRadius: 14,
+          cursor: 'pointer',
+          marginTop: 8,
+          background: '#FFF1EB',
+        }}>
+          <div style={{ width: 42, height: 42, borderRadius: 13, background: '#FFE5D9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill={tokens.accentSalmon}><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: tokens.accentSalmon }}>Log out</span>
+        </div>
+      </div>
+
+      <BottomNav active="profile" />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// CANVAS  — overview of all 3 screens
+// ─────────────────────────────────────────────
+function DesignCanvas() {
+  const screens = [
+    { label: 'Home', Component: HomeScreen, time: '9:41', statusColor: '#fff' },
+    { label: 'Recipe Detail', Component: RecipeDetailScreen, time: '9:41', statusColor: '#fff' },
+    { label: 'Profile', Component: ProfileScreen, time: '9:41', statusColor: '#fff' },
+  ];
+
+  return (
+    <div style={{ padding: '0 60px 80px', display: 'flex', gap: 48, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      {screens.map(({ label, Component, time, statusColor }) => (
+        <div key={label}>
+          <div className="screen-label">{label}</div>
+          <IosFrame time={time} statusColor={statusColor} width={393} height={790}>
+            <Component />
+          </IosFrame>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<DesignCanvas />);
+</script>
+
+<div id="root"></div>
+
+<div style="
+  position: fixed; bottom: 20px; right: 28px;
+  font-size: 10px; color: rgba(255,255,255,0.2);
+  letter-spacing: 0.15em; font-family: monospace;
+  pointer-events: none;
+">Created by Huashu-Design</div>
+
+</body>
+</html>

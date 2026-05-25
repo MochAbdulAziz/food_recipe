@@ -61,6 +61,7 @@ class CategoryMenuScreen extends StatelessWidget {
                     description: item.description,
                     rating: item.rating,
                     imageUrl: item.imageUrl,
+                    prepTime: item.prepTime,
                   ),
                 );
               },

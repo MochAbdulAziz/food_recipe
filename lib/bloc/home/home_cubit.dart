@@ -85,7 +85,7 @@ class HomeCubit extends Cubit<HomeState> {
               "Chilled espresso with milk and a sweet caramel drizzle.",
           rating: 4.7,
           imageUrl:
-              "https://images.unsplash.com/photo-1593444465545-09b68a86c673?w=1000&auto=format&fit=crop&q=80",
+              "https://images.unsplash.com/photo-1517705008128-361805f42e86?w=1000&auto=format&fit=crop&q=80",
           category: "Drinks",
           prepTime: "5 Min",
         ),

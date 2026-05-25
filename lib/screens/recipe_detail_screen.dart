@@ -2,27 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bloc/home/home_state.dart';
 import '../utils/colors.dart';
+import '../widgets/app_remote_image.dart';
 
-class RecipeDetailScreen extends StatelessWidget {
+class RecipeDetailScreen extends StatefulWidget {
   final FoodItemData foodItem;
 
   const RecipeDetailScreen({Key? key, required this.foodItem})
       : super(key: key);
 
   @override
+  State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
+}
+
+class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  bool _saved = false;
+
+  double _parseNutrient(String value) {
+    final match = RegExp(r'\d+(\.\d+)?').firstMatch(value);
+    return match != null ? double.tryParse(match.group(0)!) ?? 0 : 0;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final item = widget.foodItem;
+    final proteinFraction = (_parseNutrient(item.proteins) / 60).clamp(0.0, 1.0);
+    final fatFraction = (_parseNutrient(item.fats) / 50).clamp(0.0, 1.0);
+    final carbsFraction = (_parseNutrient(item.carbs) / 100).clamp(0.0, 1.0);
+
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
+          // Hero image
           Positioned.fill(
-            child: Image.network(
-              foodItem.imageUrl,
-              fit: BoxFit.cover,
-            ),
+            child: AppRemoteImage(imageUrl: item.imageUrl),
           ),
 
-          // Top Action Buttons
+          // Top action buttons
           Positioned(
             top: 50,
             left: 20,
@@ -32,97 +47,231 @@ class RecipeDetailScreen extends StatelessWidget {
               children: [
                 _buildCircularButton(
                     Icons.arrow_back_ios_new, () => Navigator.pop(context)),
-                _buildCircularButton(Icons.info_outline, () {}),
+                _buildCircularButton(
+                  _saved ? Icons.favorite : Icons.favorite_border,
+                  () => setState(() => _saved = !_saved),
+                  iconColor: _saved ? AppColors.accentSalmon : Colors.white,
+                ),
               ],
             ),
           ),
 
-          // Floating Ingredient Tags (Approximation)
-          if (foodItem.ingredients.isNotEmpty) ...[
-            _buildIngredientTag(foodItem.ingredients[0], top: 220, left: 80),
-            if (foodItem.ingredients.length > 1)
-              _buildIngredientTag(foodItem.ingredients[1], top: 180, right: 60),
-            if (foodItem.ingredients.length > 2)
-              _buildIngredientTag(foodItem.ingredients[2], top: 380, left: 40),
-            if (foodItem.ingredients.length > 3)
-              _buildIngredientTag(foodItem.ingredients[3], top: 480, left: 180),
-            if (foodItem.ingredients.length > 4)
-              _buildIngredientTag(foodItem.ingredients[4], top: 400, right: 60),
-          ],
+          // Floating ingredient tags
+          if (item.ingredients.isNotEmpty)
+            _buildIngredientTag(item.ingredients[0], top: 220, left: 80),
+          if (item.ingredients.length > 1)
+            _buildIngredientTag(item.ingredients[1], top: 175, right: 55),
+          if (item.ingredients.length > 2)
+            _buildIngredientTag(item.ingredients[2], top: 370, left: 36),
 
-          // Bottom Info Sheet
+          // Bottom info sheet
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.45,
+              height: MediaQuery.of(context).size.height * 0.60,
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+                  topLeft: Radius.circular(28),
+                  topRight: Radius.circular(28),
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Time Badge
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF0EC), // Light orange bg
-                      borderRadius: BorderRadius.circular(20),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Drag indicator
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.chipBg,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+
+                    // Prep time badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF0EC),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.favorite,
+                              color: AppColors.accentSalmon, size: 14),
+                          const SizedBox(width: 5),
+                          Text(
+                            item.prepTime,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.accentSalmon,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Title
+                    Text(
+                      item.title,
+                      style: GoogleFonts.poppins(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Rating row
+                    Row(
                       children: [
-                        const Icon(Icons.favorite,
-                            color: Color(0xFFFF7B5C), size: 16),
+                        ...List.generate(5, (i) {
+                          if (i < item.rating.floor()) {
+                            return const Icon(Icons.star_rounded, color: AppColors.accentAmber, size: 15);
+                          } else if (i < item.rating) {
+                            return const Icon(Icons.star_half_rounded, color: AppColors.accentAmber, size: 15);
+                          } else {
+                            return const Icon(Icons.star_outline_rounded, color: AppColors.accentAmber, size: 15);
+                          }
+                        }),
                         const SizedBox(width: 6),
                         Text(
-                          foodItem.prepTime,
+                          item.rating.toString(),
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFFFF7B5C),
+                            color: AppColors.textMid,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
-                  // Title
-                  Text(
-                    foodItem.title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
+                    // Description
+                    Text(
+                      item.description,
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: AppColors.textLight,
+                        height: 1.6,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 22),
 
-                  // Description
-                  Text(
-                    foodItem.description,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: AppColors.textDark.withOpacity(0.5),
-                      height: 1.5,
+                    // Nutrition section
+                    Text(
+                      'Nutrition Facts',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textDark,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildNutritionCard('Protein', item.proteins,
+                            const Color(0xFF5B9BD5), proteinFraction),
+                        const SizedBox(width: 10),
+                        _buildNutritionCard('Fats', item.fats,
+                            AppColors.accentSalmon, fatFraction),
+                        const SizedBox(width: 10),
+                        _buildNutritionCard('Carbs', item.carbs,
+                            AppColors.accentAmber, carbsFraction),
+                      ],
+                    ),
+                    const SizedBox(height: 22),
 
-                  // Nutrition Facts
-                  _buildNutritionRow('Proteins', foodItem.proteins),
-                  const SizedBox(height: 12),
-                  _buildNutritionRow('Fats', foodItem.fats),
-                  const SizedBox(height: 12),
-                  _buildNutritionRow('Carbohydrates', foodItem.carbs),
-                ],
+                    // Ingredients
+                    if (item.ingredients.isNotEmpty) ...[
+                      Text(
+                        'Ingredients',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: item.ingredients
+                            .map((ing) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.bgMuted,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    ing,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textMid,
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // CTA button
+                    SizedBox(
+                      width: double.infinity,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppColors.primaryLight, AppColors.primaryDeep],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.4),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            'Start Cooking',
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
               ),
             ),
           ),
@@ -131,18 +280,19 @@ class RecipeDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCircularButton(IconData icon, VoidCallback onTap) {
+  Widget _buildCircularButton(IconData icon, VoidCallback onTap,
+      {Color iconColor = Colors.white}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 48,
-        height: 48,
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.black.withOpacity(0.3),
-          border: Border.all(color: Colors.white.withOpacity(0.5), width: 1),
+          border: Border.all(color: Colors.white.withOpacity(0.4), width: 1),
         ),
-        child: Icon(icon, color: Colors.white, size: 20),
+        child: Icon(icon, color: iconColor, size: 20),
       ),
     );
   }
@@ -154,93 +304,73 @@ class RecipeDetailScreen extends StatelessWidget {
       bottom: bottom,
       left: left,
       right: right,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(20),
-              border:
-                  Border.all(color: Colors.white.withOpacity(0.4), width: 1),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.88),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: Text(
-              text,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+          ],
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.poppins(
+            color: AppColors.textDark,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
           ),
-          const SizedBox(width: 8),
-          Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Container(
-                width: 2,
-                height: 2,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildNutritionRow(String label, String value) {
-    return Row(
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textDark,
-          ),
+  Widget _buildNutritionCard(
+      String label, String value, Color color, double fraction) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+        decoration: BoxDecoration(
+          color: AppColors.bgMuted,
+          borderRadius: BorderRadius.circular(14),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Flex(
-                direction: Axis.horizontal,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.max,
-                children: List.generate(
-                  (constraints.constrainWidth() / 5).floor(),
-                  (index) => const SizedBox(
-                    width: 2,
-                    height: 1,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(color: Colors.grey),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
+        child: Column(
+          children: [
+            // Mini bar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: fraction,
+                backgroundColor: const Color(0xFFE5E0DB),
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+                minHeight: 5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textLight,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Text(
-          value,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFFFF7B5C), // Orange color
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

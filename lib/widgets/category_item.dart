@@ -4,7 +4,7 @@ import '../utils/colors.dart';
 
 class CategoryItem extends StatelessWidget {
   final String title;
-  final IconData icon; // Using IconData for simplicity for now
+  final IconData icon;
   final bool isSelected;
 
   const CategoryItem({
@@ -16,32 +16,30 @@ class CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 70,
-          height: 70,
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : const Color(0xFFE0DCD9),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Icon(
-            icon,
-            color:
-                isSelected ? Colors.white : AppColors.textDark.withOpacity(0.6),
-            size: 30,
-          ),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+      decoration: BoxDecoration(
+        color: isSelected ? AppColors.primary : AppColors.chipBg,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ]
+            : [],
+      ),
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: isSelected ? Colors.white : AppColors.textMid,
         ),
-        const SizedBox(height: 8),
-        Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textDark,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

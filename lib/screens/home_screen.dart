@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../utils/colors.dart';
+import '../widgets/app_remote_image.dart';
 import '../widgets/category_item.dart';
 import '../widgets/food_card.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,45 +30,57 @@ class HomeScreen extends StatelessWidget {
               } else if (state is HomeLoaded) {
                 return SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.all(20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Categories
                         Text(
                           "Categories",
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textDark,
-                                  ),
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textDark,
+                          ),
                         ),
-                        const SizedBox(height: 16),
-                        _buildCategories(
-                            context, state.categories, state.foodItems),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 12),
+                        _buildCategories(context, state.categories, state.foodItems),
+                        const SizedBox(height: 24),
+                        // Featured Recipe
+                        if (state.foodItems.isNotEmpty) ...[
+                          Text(
+                            '\u2736  Featured Recipe',
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildFeaturedCard(context, state.foodItems.first),
+                          const SizedBox(height: 24),
+                        ],
                         // What's Cooking Now
                         Row(
                           children: [
                             Text(
                               "What's Cooking Now",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.textDark,
-                                  ),
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textDark,
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.whatshot,
-                                color: AppColors.accentRed, size: 24),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.whatshot_rounded,
+                                color: AppColors.accentSalmon, size: 20),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        _buildFoodList(context, state.foodItems),
+                        const SizedBox(height: 12),
+                        _buildFoodList(context,
+                            state.foodItems.length > 1
+                                ? state.foodItems.skip(1).toList()
+                                : state.foodItems),
                       ],
                     ),
                   ),
@@ -85,31 +99,164 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildCategories(
-      context, List<CategoryData> categories, List<FoodItemData> foodItems) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: categories
-          .map((category) => GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CategoryMenuScreen(
-                        categoryTitle: category.title,
-                        foodItems: foodItems
-                            .where((item) => item.category == category.title)
-                            .toList(),
-                      ),
-                    ),
-                  );
-                },
-                child: CategoryItem(title: category.title, icon: category.icon),
-              ))
-          .toList(),
+      BuildContext context,
+      List<CategoryData> categories,
+      List<FoodItemData> foodItems) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: categories
+            .map((category) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryMenuScreen(
+                            categoryTitle: category.title,
+                            foodItems: foodItems
+                                .where((item) => item.category == category.title)
+                                .toList(),
+                          ),
+                        ),
+                      );
+                    },
+                    child: CategoryItem(
+                        title: category.title, icon: category.icon),
+                  ),
+                ))
+            .toList(),
+      ),
     );
   }
 
-  Widget _buildFoodList(context, List<FoodItemData> foodItems) {
+  Widget _buildFeaturedCard(BuildContext context, FoodItemData item) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RecipeDetailScreen(foodItem: item),
+          ),
+        );
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            // Image
+            SizedBox(
+              height: 180,
+              width: double.infinity,
+              child: AppRemoteImage(imageUrl: item.imageUrl),
+            ),
+            // Gradient overlay
+            Container(
+              height: 180,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.72),
+                  ],
+                  stops: const [0.35, 1.0],
+                ),
+              ),
+            ),
+            // Category badge
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.3)),
+                ),
+                child: Text(
+                  item.category.toUpperCase(),
+                  style: GoogleFonts.poppins(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ),
+            ),
+            // Info bottom
+            Positioned(
+              bottom: 14,
+              left: 14,
+              right: 14,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      ...List.generate(5, (i) {
+                        if (i < item.rating.floor()) {
+                          return const Icon(Icons.star_rounded, color: AppColors.accentAmber, size: 13);
+                        } else if (i < item.rating) {
+                          return const Icon(Icons.star_half_rounded, color: AppColors.accentAmber, size: 13);
+                        } else {
+                          return const Icon(Icons.star_outline_rounded, color: AppColors.accentAmber, size: 13);
+                        }
+                      }),
+                      const SizedBox(width: 6),
+                      Text(
+                        item.rating.toString(),
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.85),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        width: 3,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(Icons.schedule_rounded, color: Colors.white70, size: 12),
+                      const SizedBox(width: 3),
+                      Text(
+                        item.prepTime,
+                        style: GoogleFonts.poppins(
+                          fontSize: 11,
+                          color: Colors.white.withOpacity(0.8),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFoodList(BuildContext context, List<FoodItemData> foodItems) {
     return Column(
       children: foodItems
           .map((item) => GestureDetector(
@@ -126,6 +273,7 @@ class HomeScreen extends StatelessWidget {
                   description: item.description,
                   rating: item.rating,
                   imageUrl: item.imageUrl,
+                  prepTime: item.prepTime,
                 ),
               ))
           .toList(),
