@@ -12,7 +12,7 @@ class AppRemoteImage extends StatelessWidget {
   final Color backgroundColor;
 
   const AppRemoteImage({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.width,
     this.height,
@@ -20,7 +20,7 @@ class AppRemoteImage extends StatelessWidget {
     this.borderRadius,
     this.fallback,
     this.backgroundColor = AppColors.bgMuted,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

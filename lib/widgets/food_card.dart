@@ -11,13 +11,13 @@ class FoodCard extends StatelessWidget {
   final String prepTime;
 
   const FoodCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.rating,
     required this.imageUrl,
     this.prepTime = '',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class FoodCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: AppColors.textDark.withOpacity(0.07),
+            color: AppColors.textDark.withValues(alpha: 0.07),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

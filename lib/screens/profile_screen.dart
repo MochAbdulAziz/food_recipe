@@ -4,7 +4,8 @@ import '../widgets/app_remote_image.dart';
 import '../utils/colors.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  final int favouriteCount;
+  const ProfileScreen({super.key, this.favouriteCount = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class ProfileScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildHeaderButton(Icons.arrow_back_ios_new, () => Navigator.pop(context)),
+                      _buildHeaderButton(Icons.arrow_back_ios_new, () {}),
                       Text(
                         'Profile',
                         style: GoogleFonts.poppins(
@@ -49,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Avatar + name
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 40,
                     backgroundColor: AppColors.secondary,
                     child: ClipOval(
@@ -58,7 +59,7 @@ class ProfileScreen extends StatelessWidget {
                             'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60',
                         width: 80,
                         height: 80,
-                        fallback: const Icon(
+                        fallback: Icon(
                           Icons.person_rounded,
                           color: AppColors.textMid,
                           size: 34,
@@ -87,14 +88,14 @@ class ProfileScreen extends StatelessWidget {
                   // Stats row
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.09),
+                      color: Colors.white.withValues(alpha: 0.09),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       children: [
                         _buildStat('47', 'Recipes'),
                         _buildStatDivider(),
-                        _buildStat('128', 'Saved'),
+                        _buildStat('$favouriteCount', 'Saved'),
                         _buildStatDivider(),
                         _buildStat('23', 'Cooked'),
                       ],
@@ -140,7 +141,7 @@ class ProfileScreen extends StatelessWidget {
                     context,
                     icon: Icons.favorite_border_rounded,
                     label: 'Favourite Recipes',
-                    desc: '128 saved recipes',
+                    desc: '$favouriteCount saved recipes',
                     onTap: () {},
                   ),
                   _buildMenuItem(
@@ -211,7 +212,7 @@ class ProfileScreen extends StatelessWidget {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.12),
+          color: Colors.white.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: Colors.white, size: 18),
@@ -252,7 +253,7 @@ class ProfileScreen extends StatelessWidget {
     return Container(
       width: 1,
       height: 36,
-      color: Colors.white.withOpacity(0.1),
+      color: Colors.white.withValues(alpha: 0.1),
     );
   }
 

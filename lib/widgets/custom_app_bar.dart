@@ -4,7 +4,7 @@ import 'app_remote_image.dart';
 import '../utils/colors.dart';
 
 class CustomAppBar extends StatelessWidget {
-  const CustomAppBar({Key? key}) : super(key: key);
+  const CustomAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class CustomAppBar extends StatelessWidget {
                             "Good morning",
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.65),
+                              color: Colors.white.withValues(alpha: 0.65),
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -68,7 +68,7 @@ class CustomAppBar extends StatelessWidget {
                           ),
                         ],
                       ),
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 20,
                         backgroundColor: AppColors.secondary,
                         child: ClipOval(
@@ -77,7 +77,7 @@ class CustomAppBar extends StatelessWidget {
                                 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=60',
                             width: 40,
                             height: 40,
-                            fallback: const Icon(
+                            fallback: Icon(
                               Icons.person_rounded,
                               color: AppColors.textMid,
                               size: 20,
@@ -92,7 +92,7 @@ class CustomAppBar extends StatelessWidget {
                     text: TextSpan(
                       style: GoogleFonts.poppins(
                         fontSize: 15,
-                        color: Colors.white.withOpacity(0.85),
+                        color: Colors.white.withValues(alpha: 0.85),
                         fontWeight: FontWeight.w400,
                         height: 1.4,
                       ),
@@ -102,7 +102,7 @@ class CustomAppBar extends StatelessWidget {
                           text: 'delicious',
                           style: GoogleFonts.poppins(
                             fontSize: 15,
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withValues(alpha: 0.85),
                             fontWeight: FontWeight.w300,
                             fontStyle: FontStyle.italic,
                             height: 1.4,
@@ -143,7 +143,7 @@ class CustomAppBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
@@ -172,10 +172,10 @@ class CustomAppBar extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.18),
+                  color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.28),
+                    color: Colors.white.withValues(alpha: 0.28),
                     width: 1,
                   ),
                 ),

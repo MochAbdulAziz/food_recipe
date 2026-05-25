@@ -8,11 +8,11 @@ class CategoryItem extends StatelessWidget {
   final bool isSelected;
 
   const CategoryItem({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
     this.isSelected = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class CategoryItem extends StatelessWidget {
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),

@@ -3,19 +3,38 @@ import 'package:google_fonts/google_fonts.dart';
 import '../bloc/home/home_state.dart';
 import '../utils/colors.dart';
 import '../widgets/app_remote_image.dart';
+import 'start_cooking_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final FoodItemData foodItem;
+  final bool isFav;
+  final VoidCallback? onToggleFav;
 
-  const RecipeDetailScreen({Key? key, required this.foodItem})
-      : super(key: key);
+  const RecipeDetailScreen({
+    super.key,
+    required this.foodItem,
+    this.isFav = false,
+    this.onToggleFav,
+  });
 
   @override
   State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
-  bool _saved = false;
+  late bool _saved;
+
+  @override
+  void initState() {
+    super.initState();
+    _saved = widget.isFav;
+  }
+
+  @override
+  void didUpdateWidget(RecipeDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _saved = widget.isFav;
+  }
 
   double _parseNutrient(String value) {
     final match = RegExp(r'\d+(\.\d+)?').firstMatch(value);
@@ -49,7 +68,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     Icons.arrow_back_ios_new, () => Navigator.pop(context)),
                 _buildCircularButton(
                   _saved ? Icons.favorite : Icons.favorite_border,
-                  () => setState(() => _saved = !_saved),
+                  () {
+                    setState(() => _saved = !_saved);
+                    widget.onToggleFav?.call();
+                  },
                   iconColor: _saved ? AppColors.accentSalmon : Colors.white,
                 ),
               ],
@@ -105,7 +127,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.favorite,
+                          const Icon(Icons.access_time_rounded,
                               color: AppColors.accentSalmon, size: 14),
                           const SizedBox(width: 5),
                           Text(
@@ -152,6 +174,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             fontWeight: FontWeight.w600,
                             color: AppColors.textMid,
                           ),
+                        ),
+                        Text(
+                          ' · ${item.servings} Servings · ${item.calories}',
+                          style: GoogleFonts.poppins(fontSize: 11, color: AppColors.textLight),
                         ),
                       ],
                     ),
@@ -228,27 +254,92 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       const SizedBox(height: 24),
                     ],
 
+                    // Steps preview strip
+                    if (item.steps.isNotEmpty) ...[
+                      Row(
+                        children: [
+                          Text(
+                            '${item.steps.length} Steps',
+                            style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textDark),
+                          ),
+                          Text(
+                            ' · ${item.prepTime}',
+                            style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textLight),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        height: 100,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: item.steps.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          itemBuilder: (ctx, i) {
+                            final step = item.steps[i];
+                            return Container(
+                              width: 96,
+                              padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+                              decoration: BoxDecoration(
+                                color: AppColors.bgMuted,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 24, height: 24,
+                                    decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                                    child: Center(
+                                      child: Text('${i + 1}',
+                                        style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(step.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textDark, height: 1.3)),
+                                  const Spacer(),
+                                  Text(step.duration,
+                                    style: GoogleFonts.poppins(fontSize: 9, color: AppColors.textLight)),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+                    ],
+
                     // CTA button
                     SizedBox(
                       width: double.infinity,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [AppColors.primaryLight, AppColors.primaryDeep],
+                            colors: [AppColors.primary, AppColors.primaryDeep],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary.withOpacity(0.4),
+                              color: AppColors.primary.withValues(alpha: 0.4),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             ),
                           ],
                         ),
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: item.steps.isEmpty ? null : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => StartCookingScreen(recipe: item),
+                              ),
+                            );
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
@@ -258,7 +349,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             ),
                           ),
                           child: Text(
-                            'Start Cooking',
+                            'Start Cooking →',
                             style: GoogleFonts.poppins(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -289,8 +380,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         height: 44,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.black.withOpacity(0.3),
-          border: Border.all(color: Colors.white.withOpacity(0.4), width: 1),
+          color: Colors.black.withValues(alpha: 0.3),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1),
         ),
         child: Icon(icon, color: iconColor, size: 20),
       ),
@@ -307,11 +398,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.88),
+          color: Colors.white.withValues(alpha: 0.88),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

@@ -40,6 +40,21 @@ class CategoryData extends Equatable {
   List<Object> get props => [title, icon];
 }
 
+class RecipeStep extends Equatable {
+  final String title;
+  final String description;
+  final String duration;
+
+  const RecipeStep({
+    required this.title,
+    required this.description,
+    required this.duration,
+  });
+
+  @override
+  List<Object> get props => [title, description, duration];
+}
+
 class FoodItemData extends Equatable {
   final String title;
   final String description;
@@ -50,7 +65,10 @@ class FoodItemData extends Equatable {
   final String proteins;
   final String fats;
   final String carbs;
+  final String calories;
+  final String servings;
   final List<String> ingredients;
+  final List<RecipeStep> steps;
 
   const FoodItemData({
     required this.title,
@@ -62,7 +80,10 @@ class FoodItemData extends Equatable {
     this.proteins = "0 g",
     this.fats = "0 g",
     this.carbs = "0 g",
+    this.calories = "0 kcal",
+    this.servings = "2",
     this.ingredients = const [],
+    this.steps = const [],
   });
 
   @override
@@ -76,6 +97,9 @@ class FoodItemData extends Equatable {
         proteins,
         fats,
         carbs,
-        ingredients
+        calories,
+        servings,
+        ingredients,
+        steps,
       ];
 }

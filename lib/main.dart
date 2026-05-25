@@ -10,7 +10,7 @@ void main() {
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({Key? key}) : super(key: key);
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,6 @@ class MainApp extends StatelessWidget {
           secondary:
               AppColors.primary, // Using primary as secondary for consistency
           surface: AppColors.cardBackground,
-          background: AppColors.background,
         ),
         textTheme: GoogleFonts.poppinsTextTheme(
           Theme.of(context).textTheme,

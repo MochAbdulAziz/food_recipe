@@ -10,10 +10,10 @@ class CategoryMenuScreen extends StatelessWidget {
   final List<FoodItemData> foodItems;
 
   const CategoryMenuScreen({
-    Key? key,
+    super.key,
     required this.categoryTitle,
     required this.foodItems,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
