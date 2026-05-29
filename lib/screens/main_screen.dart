@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../data/local_storage.dart';
 import '../utils/colors.dart';
 import '../bloc/home/home_cubit.dart';
 import 'home_screen.dart';
@@ -16,7 +17,13 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  final Set<String> _favourites = {};
+  late Set<String> _favourites;
+
+  @override
+  void initState() {
+    super.initState();
+    _favourites = LocalStorage.loadFavourites();
+  }
 
   void _toggleFav(String id) {
     setState(() {
@@ -26,6 +33,7 @@ class _MainScreenState extends State<MainScreen> {
         _favourites.add(id);
       }
     });
+    LocalStorage.saveFavourites(_favourites);
   }
 
   void _goToTab(int index) => setState(() => _currentIndex = index);

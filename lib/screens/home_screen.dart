@@ -5,6 +5,7 @@ import '../widgets/app_remote_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/home/home_cubit.dart';
 import '../bloc/home/home_state.dart';
+import 'category_menu_screen.dart';
 import 'recipe_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,6 +27,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _activeCategory = 'All';
   final List<String> _categories = ['All', 'Soup', 'Breakfast', 'Drinks', 'Dinner'];
+
+  void _openCategory(BuildContext context, String category, List<FoodItemData> items) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CategoryMenuScreen(
+          categoryTitle: category,
+          foodItems: items,
+          favourites: widget.favourites,
+          onToggleFav: widget.onToggleFav,
+        ),
+      ),
+    );
+  }
 
   void _openRecipe(BuildContext context, FoodItemData item) {
     Navigator.push(
@@ -219,15 +234,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       // Section header
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            _activeCategory == 'All' ? "What's Cooking Now" : _activeCategory,
-                            style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textDark),
+                          Row(
+                            children: [
+                              Text(
+                                _activeCategory == 'All' ? "What's Cooking Now" : _activeCategory,
+                                style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textDark),
+                              ),
+                              if (_activeCategory == 'All') ...[
+                                const SizedBox(width: 6),
+                                const Icon(Icons.whatshot_rounded, color: AppColors.accentSalmon, size: 20),
+                              ],
+                            ],
                           ),
-                          if (_activeCategory == 'All') ...[
-                            const SizedBox(width: 6),
-                            const Icon(Icons.whatshot_rounded, color: AppColors.accentSalmon, size: 20),
-                          ],
+                          if (_activeCategory != 'All')
+                            GestureDetector(
+                              onTap: () => _openCategory(context, _activeCategory, listItems),
+                              child: Text(
+                                'View all →',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 12),

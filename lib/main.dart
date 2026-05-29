@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/home/home_cubit.dart';
+import 'data/local_recipe_source.dart';
+import 'data/local_storage.dart';
 import 'screens/main_screen.dart';
 import 'utils/colors.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalStorage.init();
   runApp(const MainApp());
 }
 
@@ -54,7 +58,7 @@ class MainApp extends StatelessWidget {
         ),
       ),
       home: BlocProvider(
-        create: (context) => HomeCubit()..loadData(),
+        create: (context) => HomeCubit(LocalRecipeSource())..loadData(),
         child: const MainScreen(),
       ),
     );

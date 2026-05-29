@@ -8,11 +8,15 @@ import 'recipe_detail_screen.dart';
 class CategoryMenuScreen extends StatelessWidget {
   final String categoryTitle;
   final List<FoodItemData> foodItems;
+  final Set<String> favourites;
+  final void Function(String id)? onToggleFav;
 
   const CategoryMenuScreen({
     super.key,
     required this.categoryTitle,
     required this.foodItems,
+    this.favourites = const {},
+    this.onToggleFav,
   });
 
   @override
@@ -51,8 +55,13 @@ class CategoryMenuScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            RecipeDetailScreen(foodItem: item),
+                        builder: (context) => RecipeDetailScreen(
+                          foodItem: item,
+                          isFav: favourites.contains(item.title),
+                          onToggleFav: onToggleFav != null
+                              ? () => onToggleFav!(item.title)
+                              : null,
+                        ),
                       ),
                     );
                   },
