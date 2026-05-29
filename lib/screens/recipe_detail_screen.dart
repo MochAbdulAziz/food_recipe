@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bloc/home/home_state.dart';
+import '../bloc/shopping/shopping_cubit.dart';
 import '../utils/colors.dart';
 import '../widgets/app_remote_image.dart';
+import '../widgets/serving_adjuster.dart';
 import 'start_cooking_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
@@ -23,11 +26,15 @@ class RecipeDetailScreen extends StatefulWidget {
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   late bool _saved;
+  late int _servings;
 
   @override
   void initState() {
     super.initState();
     _saved = widget.isFav;
+    _servings = int.tryParse(
+            RegExp(r'\d+').firstMatch(widget.foodItem.servings)?.group(0) ?? '2') ??
+        2;
   }
 
   @override
@@ -220,6 +227,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
                     // Ingredients
                     if (item.ingredients.isNotEmpty) ...[
+                      ServingAdjuster(
+                        initialServings: item.servings,
+                        onChanged: (v) => setState(() => _servings = v),
+                      ),
+                      const SizedBox(height: 12),
                       Text(
                         'Ingredients',
                         style: GoogleFonts.poppins(
@@ -241,7 +253,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
-                                    ing,
+                                    () {
+                                      final baseServings = int.tryParse(
+                                              RegExp(r'\d+').firstMatch(item.servings)?.group(0) ?? '2') ??
+                                          2;
+                                      final multiplier = _servings / baseServings;
+                                      return scaleIngredient(ing, multiplier);
+                                    }(),
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -312,7 +330,47 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       const SizedBox(height: 22),
                     ],
 
-                    // CTA button
+                    // CTA buttons
+                    if (item.ingredients.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              context.read<ShoppingCubit>().addFromRecipe(item);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Added to shopping list!',
+                                    style: GoogleFonts.poppins(fontSize: 13),
+                                  ),
+                                  backgroundColor: AppColors.primary,
+                                  duration: const Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.shopping_cart_outlined,
+                                size: 18),
+                            label: Text('Add to Shopping List',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side:
+                                  const BorderSide(color: AppColors.primary),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
+                        ),
+                      ),
                     SizedBox(
                       width: double.infinity,
                       child: DecoratedBox(

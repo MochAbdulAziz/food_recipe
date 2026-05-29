@@ -3,8 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bloc/auth/auth_cubit.dart';
 import '../bloc/auth/auth_state.dart';
+import '../bloc/meal_plan/meal_plan_cubit.dart';
+import '../data/cooking_history.dart';
 import '../widgets/app_remote_image.dart';
 import '../utils/colors.dart';
+import 'meal_plan_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final int favouriteCount;
@@ -112,7 +115,7 @@ class ProfileScreen extends StatelessWidget {
                         _buildStatDivider(),
                         _buildStat('$favouriteCount', 'Saved'),
                         _buildStatDivider(),
-                        _buildStat('23', 'Cooked'),
+                        _buildStat('${CookingHistory.getCookedCount()}', 'Cooked'),
                       ],
                     ),
                   ),
@@ -158,6 +161,21 @@ class ProfileScreen extends StatelessWidget {
                     label: 'Favourite Recipes',
                     desc: '$favouriteCount saved recipes',
                     onTap: () {},
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.calendar_month_outlined,
+                    label: 'Meal Planner',
+                    desc: 'Plan your weekly meals',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BlocProvider.value(
+                          value: context.read<MealPlanCubit>(),
+                          child: const MealPlanScreen(),
+                        ),
+                      ),
+                    ),
                   ),
                   _buildMenuItem(
                     context,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bloc/home/home_state.dart';
+import '../data/cooking_history.dart';
 import '../utils/colors.dart';
 import '../widgets/app_remote_image.dart';
+import '../widgets/cooking_timer.dart';
 
 class StartCookingScreen extends StatefulWidget {
   final FoodItemData recipe;
@@ -241,6 +243,27 @@ class _StartCookingScreenState extends State<StartCookingScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 10),
+
+                  // Step countdown timer
+                  CookingTimer(
+                    key: ValueKey('timer_$_stepIndex'),
+                    duration: _current.duration,
+                    onComplete: () {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Step ${_stepIndex + 1} done! ✓',
+                              style: GoogleFonts.poppins(fontSize: 13)),
+                          backgroundColor: AppColors.primary,
+                          duration: const Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 14),
 
                   // Step description
@@ -345,6 +368,7 @@ class _StartCookingScreenState extends State<StartCookingScreen> {
                   child: GestureDetector(
                     onTap: () {
                       if (_isLast) {
+                        CookingHistory.recordCooked(widget.recipe);
                         setState(() => _finished = true);
                       } else {
                         setState(() => _stepIndex++);

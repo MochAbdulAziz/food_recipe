@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/shopping/shopping_cubit.dart';
+import '../bloc/shopping/shopping_state.dart';
 import '../data/sync_service.dart';
 import '../utils/colors.dart';
 import '../bloc/home/home_cubit.dart';
@@ -7,6 +9,7 @@ import 'home_screen.dart';
 import 'search_screen.dart';
 import 'favourites_screen.dart';
 import 'profile_screen.dart';
+import 'shopping_list_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -68,6 +71,7 @@ class _MainScreenState extends State<MainScreen> {
         onToggleFav: _toggleFav,
         onSearchTap: _goToSearch,
       ),
+      const ShoppingListScreen(),
       FavouritesScreen(
         favourites: Set.unmodifiable(_favourites),
         onToggleFav: _toggleFav,
@@ -94,29 +98,38 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildBottomBar() {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8.0,
-      color: Colors.white,
-      elevation: 8,
-      child: SizedBox(
-        height: 62,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _navItem(icon: Icons.home_rounded, label: 'Home', index: 0),
-            _navItem(icon: Icons.search_rounded, label: 'Search', tabIndex: -1),
-            const SizedBox(width: 56),
-            _navItem(
-              icon: Icons.favorite_rounded,
-              label: 'Saved',
-              index: 1,
-              badge: _favourites.length,
+    return BlocBuilder<ShoppingCubit, ShoppingState>(
+      builder: (context, shoppingState) {
+        return BottomAppBar(
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 8.0,
+          color: Colors.white,
+          elevation: 8,
+          child: SizedBox(
+            height: 62,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _navItem(icon: Icons.home_rounded, label: 'Home', index: 0),
+                _navItem(
+                  icon: Icons.shopping_cart_outlined,
+                  label: 'List',
+                  index: 1,
+                  badge: shoppingState.items.where((i) => !i.isChecked).length,
+                ),
+                const SizedBox(width: 56),
+                _navItem(
+                  icon: Icons.favorite_rounded,
+                  label: 'Saved',
+                  index: 2,
+                  badge: _favourites.length,
+                ),
+                _navItem(icon: Icons.person_rounded, label: 'Profile', index: 3),
+              ],
             ),
-            _navItem(icon: Icons.person_rounded, label: 'Profile', index: 2),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -124,7 +137,6 @@ class _MainScreenState extends State<MainScreen> {
     required IconData icon,
     required String label,
     int index = -1,
-    int tabIndex = 0,
     int badge = 0,
   }) {
     final isSearch = index == -1;

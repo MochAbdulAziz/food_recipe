@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'cooking_history.dart';
 
 class LocalStorage {
   static const _favBoxName = 'favourites';
@@ -6,6 +7,7 @@ class LocalStorage {
   static Future<void> init() async {
     await Hive.initFlutter();
     await Hive.openBox<String>(_favBoxName);
+    await CookingHistory.init();
   }
 
   static Set<String> loadFavourites() {
