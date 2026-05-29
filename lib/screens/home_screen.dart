@@ -5,6 +5,8 @@ import '../widgets/app_remote_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/home/home_cubit.dart';
 import '../bloc/home/home_state.dart';
+import '../bloc/auth/auth_cubit.dart';
+import '../bloc/auth/auth_state.dart';
 import 'category_menu_screen.dart';
 import 'recipe_detail_screen.dart';
 
@@ -27,6 +29,28 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _activeCategory = 'All';
   final List<String> _categories = ['All', 'Soup', 'Breakfast', 'Drinks', 'Dinner'];
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 200) {
+      context.read<HomeCubit>().loadMore();
+    }
+  }
 
   void _openCategory(BuildContext context, String category, List<FoodItemData> items) {
     Navigator.push(
@@ -81,6 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Scaffold(
           backgroundColor: AppColors.background,
           body: CustomScrollView(
+            controller: _scrollController,
             slivers: [
               // ── App bar / header ──
               SliverToBoxAdapter(
@@ -104,36 +129,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Greeting row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      BlocBuilder<AuthCubit, AuthState>(
+                        builder: (context, authState) {
+                          final user = authState is AuthAuthenticated ? authState.user : null;
+                          final name = user?.displayName.split(' ').first ?? 'Chef';
+                          final photoUrl = user?.photoUrl ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=60';
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Good morning',
-                                style: GoogleFonts.poppins(fontSize: 13, color: Colors.white.withValues(alpha: 0.65))),
-                              Row(
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Hi, Aziz',
-                                    style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
-                                  const SizedBox(width: 6),
-                                  const Text('👋', style: TextStyle(fontSize: 20)),
+                                  Text('Good morning',
+                                    style: GoogleFonts.poppins(fontSize: 13, color: Colors.white.withValues(alpha: 0.65))),
+                                  Row(
+                                    children: [
+                                      Text('Hi, $name',
+                                        style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+                                      const SizedBox(width: 6),
+                                      const Text('👋', style: TextStyle(fontSize: 20)),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
-                          ),
-                          const CircleAvatar(
-                            radius: 20,
-                            backgroundColor: AppColors.secondary,
-                            child: ClipOval(
-                              child: AppRemoteImage(
-                                imageUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=60',
-                                width: 40, height: 40,
-                                fallback: Icon(Icons.person_rounded, color: AppColors.textMid, size: 20),
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: AppColors.secondary,
+                                child: ClipOval(
+                                  child: AppRemoteImage(
+                                    imageUrl: photoUrl,
+                                    width: 40, height: 40,
+                                    fallback: const Icon(Icons.person_rounded, color: AppColors.textMid, size: 20),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ],
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 8),
                       RichText(
@@ -278,6 +310,30 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.only(bottom: 14),
                           child: _buildRecipeCard(context, item),
                         )),
+
+                      // ── Load-more indicator ──
+                      if (state.isLoadingMore)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else if (state.hasMore && listItems.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Center(
+                            child: TextButton(
+                              onPressed: () => context.read<HomeCubit>().loadMore(),
+                              child: Text(
+                                'Load more recipes',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

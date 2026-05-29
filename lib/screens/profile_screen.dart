@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../bloc/auth/auth_cubit.dart';
+import '../bloc/auth/auth_state.dart';
 import '../widgets/app_remote_image.dart';
 import '../utils/colors.dart';
 
@@ -50,38 +53,50 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Avatar + name
-                  const CircleAvatar(
-                    radius: 40,
-                    backgroundColor: AppColors.secondary,
-                    child: ClipOval(
-                      child: AppRemoteImage(
-                        imageUrl:
-                            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60',
-                        width: 80,
-                        height: 80,
-                        fallback: Icon(
-                          Icons.person_rounded,
-                          color: AppColors.textMid,
-                          size: 34,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Jane Cooper',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                    ),
-                  ),
-                  Text(
-                    'janeper01@gmail.com',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                  BlocBuilder<AuthCubit, AuthState>(
+                    builder: (context, authState) {
+                      final user = authState is AuthAuthenticated ? authState.user : null;
+                      final name = user?.displayName ?? 'Guest Chef';
+                      final email = user?.email ?? '';
+                      final photoUrl = user?.photoUrl ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=60';
+                      return Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor: AppColors.secondary,
+                            child: ClipOval(
+                              child: AppRemoteImage(
+                                imageUrl: photoUrl,
+                                width: 80,
+                                height: 80,
+                                fallback: const Icon(
+                                  Icons.person_rounded,
+                                  color: AppColors.textMid,
+                                  size: 34,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            name,
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                            ),
+                          ),
+                          if (email.isNotEmpty)
+                            Text(
+                              email,
+                              style: GoogleFonts.poppins(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 22),
 
@@ -161,39 +176,43 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Logout
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF1EB),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 42,
-                            height: 42,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFE5D9),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(Icons.logout_rounded,
-                                color: AppColors.accentSalmon, size: 20),
+                  BlocBuilder<AuthCubit, AuthState>(
+                    builder: (context, state) {
+                      return GestureDetector(
+                        onTap: () => context.read<AuthCubit>().signOut(),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF1EB),
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          const SizedBox(width: 14),
-                          Text(
-                            'Log out',
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.accentSalmon,
-                            ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFE5D9),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.logout_rounded,
+                                    color: AppColors.accentSalmon, size: 20),
+                              ),
+                              const SizedBox(width: 14),
+                              Text(
+                                'Log out',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.accentSalmon,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 32),
                 ],

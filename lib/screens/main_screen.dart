@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../data/local_storage.dart';
+import '../data/sync_service.dart';
 import '../utils/colors.dart';
 import '../bloc/home/home_cubit.dart';
 import 'home_screen.dart';
@@ -22,7 +22,13 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _favourites = LocalStorage.loadFavourites();
+    _loadFavourites();
+  }
+
+  Future<void> _loadFavourites() async {
+    final syncService = context.read<SyncService>();
+    final favs = await syncService.loadFavourites();
+    if (mounted) setState(() => _favourites = favs);
   }
 
   void _toggleFav(String id) {
@@ -33,7 +39,7 @@ class _MainScreenState extends State<MainScreen> {
         _favourites.add(id);
       }
     });
-    LocalStorage.saveFavourites(_favourites);
+    context.read<SyncService>().saveFavourites(_favourites);
   }
 
   void _goToTab(int index) => setState(() => _currentIndex = index);

@@ -16,7 +16,11 @@ class LocalRecipeSource implements RecipeRepository {
   }
 
   @override
-  Future<List<FoodItemData>> getRecipes() async {
+  bool hasMoreData(int nextPage) => false; // All local data is returned on page 0
+
+  @override
+  Future<List<FoodItemData>> getRecipes({int page = 0}) async {
+    if (page > 0) return [];
     return const [
       FoodItemData(
         title: 'Hot & Spicy Shrimp Rice',
