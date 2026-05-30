@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../bloc/home/home_state.dart';
 import '../bloc/shopping/shopping_cubit.dart';
+import '../data/offline_cache.dart';
 import '../utils/colors.dart';
 import '../widgets/app_remote_image.dart';
 import '../widgets/serving_adjuster.dart';
@@ -35,6 +36,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     _servings = int.tryParse(
             RegExp(r'\d+').firstMatch(widget.foodItem.servings)?.group(0) ?? '2') ??
         2;
+    // Track viewed for offline cache
+    OfflineCache.addViewed(widget.foodItem);
   }
 
   @override

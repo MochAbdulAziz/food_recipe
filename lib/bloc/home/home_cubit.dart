@@ -1,4 +1,5 @@
 ﻿import 'package:bloc/bloc.dart';
+import '../../data/offline_cache.dart';
 import '../../data/recipe_repository.dart';
 import 'home_state.dart';
 
@@ -12,6 +13,10 @@ class HomeCubit extends Cubit<HomeState> {
       emit(HomeLoading());
       final categories = await repository.getCategories();
       final foodItems = await repository.getRecipes(page: 0);
+      // Warm offline cache with first-page results
+      for (final item in foodItems) {
+        OfflineCache.addViewed(item);
+      }
       emit(HomeLoaded(
         categories: categories,
         foodItems: foodItems,
@@ -19,7 +24,18 @@ class HomeCubit extends Cubit<HomeState> {
         currentPage: 0,
       ));
     } catch (e) {
-      emit(const HomeError('Failed to load data'));
+      // Fall back to offline cache
+      final cached = OfflineCache.getOfflineRecipes();
+      if (cached.isNotEmpty) {
+        emit(HomeLoaded(
+          categories: const [],
+          foodItems: cached,
+          hasMore: false,
+          currentPage: 0,
+        ));
+      } else {
+        emit(const HomeError('Failed to load data'));
+      }
     }
   }
 
@@ -33,6 +49,9 @@ class HomeCubit extends Cubit<HomeState> {
     try {
       final nextPage = current.currentPage + 1;
       final more = await repository.getRecipes(page: nextPage);
+      for (final item in more) {
+        OfflineCache.addViewed(item);
+      }
       emit(current.copyWith(
         foodItems: [...current.foodItems, ...more],
         hasMore: repository.hasMoreData(nextPage + 1),

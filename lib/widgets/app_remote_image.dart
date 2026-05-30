@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../utils/colors.dart';
 
@@ -24,39 +26,37 @@ class AppRemoteImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final image = Image.network(
-      imageUrl,
+    Widget image = CachedNetworkImage(
+      imageUrl: imageUrl,
       width: width,
       height: height,
       fit: fit,
-      errorBuilder: (context, error, stackTrace) => _buildFallback(),
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) {
-          return child;
-        }
-
-        return SizedBox(
-          width: width,
-          height: height,
-          child: DecoratedBox(
-            decoration: BoxDecoration(color: backgroundColor),
-            child: const Center(
-              child: SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ),
-          ),
-        );
-      },
+      placeholder: (context, url) => _buildShimmer(),
+      errorWidget: (context, url, error) => _buildFallback(),
     );
 
-    if (borderRadius == null) {
-      return image;
+    if (borderRadius != null) {
+      image = ClipRRect(borderRadius: borderRadius!, child: image);
     }
 
-    return ClipRRect(borderRadius: borderRadius!, child: image);
+    return image;
+  }
+
+  Widget _buildShimmer() {
+    return Shimmer.fromColors(
+      baseColor: backgroundColor,
+      highlightColor: AppColors.secondary,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: borderRadius,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildFallback() {
@@ -64,7 +64,10 @@ class AppRemoteImage extends StatelessWidget {
       width: width,
       height: height,
       child: DecoratedBox(
-        decoration: BoxDecoration(color: backgroundColor),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: borderRadius,
+        ),
         child: Center(
           child: fallback ??
               const Icon(

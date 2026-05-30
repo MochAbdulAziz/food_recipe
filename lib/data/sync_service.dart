@@ -1,4 +1,5 @@
 import 'local_storage.dart';
+import 'offline_cache.dart';
 import 'auth_service.dart';
 
 /// Manages favourite synchronisation.
@@ -17,11 +18,31 @@ class SyncService {
     return LocalStorage.loadFavourites();
   }
 
-  /// Persists favourites locally and queues a cloud push when authenticated.
+  /// Persists favourites locally, updates offline saved cache, and queues a
+  /// cloud push when authenticated.
   Future<void> saveFavourites(Set<String> ids) async {
     await LocalStorage.saveFavourites(ids);
+    _syncOfflineSaved(ids);
     if (_authService.currentUser != null) {
       await _syncToCloud(ids);
+    }
+  }
+
+  /// Reconciles the offline cache's "saved" bucket with the current favourite set.
+  /// Recipes already in the viewed cache are promoted/demoted accordingly.
+  void _syncOfflineSaved(Set<String> ids) {
+    // Promote newly saved recipes from viewed → saved bucket
+    final viewed = OfflineCache.getViewed();
+    for (final recipe in viewed) {
+      if (ids.contains(recipe.title)) {
+        OfflineCache.addSaved(recipe);
+      }
+    }
+    // Demote recipes that are no longer saved
+    for (final saved in OfflineCache.getSaved()) {
+      if (!ids.contains(saved.title)) {
+        OfflineCache.removeSaved(saved.title);
+      }
     }
   }
 

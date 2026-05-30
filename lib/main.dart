@@ -10,14 +10,18 @@ import 'data/api_client.dart';
 import 'data/api_recipe_source.dart';
 import 'data/auth_service.dart';
 import 'data/local_storage.dart';
+import 'data/offline_cache.dart';
 import 'data/sync_service.dart';
 import 'screens/main_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'utils/colors.dart';
+import 'utils/connectivity.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocalStorage.init();
+  await OfflineCache.init();
+  await ConnectivityService.instance.init();
 
   final authService = MockAuthService();
   await authService.init();

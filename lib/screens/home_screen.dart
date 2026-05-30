@@ -7,6 +7,7 @@ import '../bloc/home/home_cubit.dart';
 import '../bloc/home/home_state.dart';
 import '../bloc/auth/auth_cubit.dart';
 import '../bloc/auth/auth_state.dart';
+import '../widgets/skeleton_card.dart';
 import 'category_menu_screen.dart';
 import 'recipe_detail_screen.dart';
 
@@ -84,8 +85,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         if (state is HomeLoading) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            body: SafeArea(child: SkeletonFeedList()),
           );
         }
         if (state is HomeError) {
@@ -306,9 +308,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         )
                       else
-                        ...listItems.map((item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
-                          child: _buildRecipeCard(context, item),
+                        ...listItems.map((item) => RepaintBoundary(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: _buildRecipeCard(context, item),
+                          ),
                         )),
 
                       // ── Load-more indicator ──

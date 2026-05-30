@@ -5,6 +5,7 @@ import '../bloc/shopping/shopping_state.dart';
 import '../data/sync_service.dart';
 import '../utils/colors.dart';
 import '../bloc/home/home_cubit.dart';
+import '../widgets/connectivity_banner.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
 import 'favourites_screen.dart';
@@ -80,20 +81,22 @@ class _MainScreenState extends State<MainScreen> {
       ProfileScreen(favouriteCount: _favourites.length),
     ];
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: tabScreens,
+    return ConnectivityBanner(
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: tabScreens,
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _goToSearch,
+          backgroundColor: AppColors.primary,
+          elevation: 6,
+          child: const Icon(Icons.restaurant_menu_rounded, color: Colors.white),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: _buildBottomBar(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _goToSearch,
-        backgroundColor: AppColors.primary,
-        elevation: 6,
-        child: const Icon(Icons.restaurant_menu_rounded, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _buildBottomBar(),
     );
   }
 

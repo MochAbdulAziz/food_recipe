@@ -8,6 +8,7 @@ class LocalStorage {
     await Hive.initFlutter();
     await Hive.openBox<String>(_favBoxName);
     await CookingHistory.init();
+    // Offline cache boxes are opened separately via OfflineCache.init()
   }
 
   static Set<String> loadFavourites() {
