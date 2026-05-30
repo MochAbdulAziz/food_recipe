@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../bloc/home/home_state.dart';
 import '../bloc/shopping/shopping_cubit.dart';
 import '../data/offline_cache.dart';
+import '../models/collection.dart';
 import '../utils/colors.dart';
 import '../widgets/app_remote_image.dart';
 import '../widgets/serving_adjuster.dart';
@@ -76,13 +77,22 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               children: [
                 _buildCircularButton(
                     Icons.arrow_back_ios_new, () => Navigator.pop(context)),
-                _buildCircularButton(
-                  _saved ? Icons.favorite : Icons.favorite_border,
-                  () {
-                    setState(() => _saved = !_saved);
-                    widget.onToggleFav?.call();
-                  },
-                  iconColor: _saved ? AppColors.accentSalmon : Colors.white,
+                Row(
+                  children: [
+                    _buildCircularButton(
+                      Icons.bookmark_add_outlined,
+                      () => _showSaveToCollection(context),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildCircularButton(
+                      _saved ? Icons.favorite : Icons.favorite_border,
+                      () {
+                        setState(() => _saved = !_saved);
+                        widget.onToggleFav?.call();
+                      },
+                      iconColor: _saved ? AppColors.accentSalmon : Colors.white,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -428,6 +438,89 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _showSaveToCollection(BuildContext context) async {
+    final collections = CollectionStorage.load();
+    if (!context.mounted) return;
+    if (collections.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No collections yet. Create one from Favourites.',
+              style: GoogleFonts.poppins(fontSize: 13)),
+          backgroundColor: AppColors.textDark,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(
+                    color: AppColors.chipBg,
+                    borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text('Save to Collection',
+                  style: GoogleFonts.poppins(
+                      fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textDark)),
+            ),
+            const SizedBox(height: 8),
+            ...collections.map((c) {
+              final alreadySaved = c.recipeIds.contains(widget.foodItem.title);
+              return ListTile(
+                leading: Icon(
+                  alreadySaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  color: alreadySaved ? AppColors.primary : AppColors.textMid,
+                ),
+                title: Text(c.name,
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, fontWeight: FontWeight.w500,
+                        color: alreadySaved ? AppColors.primary : AppColors.textDark)),
+                trailing: alreadySaved
+                    ? Text('Saved',
+                        style: GoogleFonts.poppins(
+                            fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600))
+                    : null,
+                onTap: () async {
+                  Navigator.pop(context);
+                  if (!alreadySaved) {
+                    final updated = c.copyWith(
+                        recipeIds: [...c.recipeIds, widget.foodItem.title]);
+                    await CollectionStorage.update(updated);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Added to "${c.name}"',
+                              style: GoogleFonts.poppins(fontSize: 13)),
+                          backgroundColor: AppColors.primary,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      );
+                    }
+                  }
+                },
+              );
+            }),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }

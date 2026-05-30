@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/home/home_cubit.dart';
 import 'bloc/auth/auth_cubit.dart';
 import 'bloc/auth/auth_state.dart';
+import 'bloc/recommendations/recommendations_cubit.dart';
 import 'bloc/meal_plan/meal_plan_cubit.dart';
 import 'bloc/shopping/shopping_cubit.dart';
 import 'data/api_client.dart';
@@ -56,6 +57,9 @@ class MainApp extends StatelessWidget {
         ),
         BlocProvider<MealPlanCubit>(
           create: (_) => MealPlanCubit(),
+        ),
+        BlocProvider<RecommendationsCubit>(
+          create: (_) => RecommendationsCubit(),
         ),
       ],
       child: MaterialApp(

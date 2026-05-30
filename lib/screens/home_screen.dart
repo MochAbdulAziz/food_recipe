@@ -7,6 +7,8 @@ import '../bloc/home/home_cubit.dart';
 import '../bloc/home/home_state.dart';
 import '../bloc/auth/auth_cubit.dart';
 import '../bloc/auth/auth_state.dart';
+import '../bloc/recommendations/recommendations_cubit.dart';
+import '../bloc/recommendations/recommendations_state.dart';
 import '../widgets/skeleton_card.dart';
 import 'category_menu_screen.dart';
 import 'recipe_detail_screen.dart';
@@ -36,6 +38,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void didUpdateWidget(HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.favourites != widget.favourites) {
+      final state = context.read<HomeCubit>().state;
+      if (state is HomeLoaded) {
+        context.read<RecommendationsCubit>().compute(
+          allItems: state.foodItems,
+          favourites: widget.favourites,
+        );
+      }
+    }
   }
 
   @override
@@ -265,6 +281,118 @@ class _HomeScreenState extends State<HomeScreen> {
                         _buildFeaturedCard(context, featured),
                         const SizedBox(height: 24),
                       ],
+
+                      // Recommendations (All tab only)
+                      if (_activeCategory == 'All')
+                        BlocListener<HomeCubit, HomeState>(
+                          listenWhen: (prev, next) => next is HomeLoaded && prev is! HomeLoaded,
+                          listener: (ctx, homeState) {
+                            if (homeState is HomeLoaded) {
+                              ctx.read<RecommendationsCubit>().compute(
+                                allItems: homeState.foodItems,
+                                favourites: widget.favourites,
+                              );
+                            }
+                          },
+                          child: BlocBuilder<RecommendationsCubit, RecommendationsState>(
+                            builder: (ctx, recState) {
+                              if (recState is! RecommendationsLoaded || recState.items.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text('You might like',
+                                        style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textDark)),
+                                      const SizedBox(width: 6),
+                                      const Icon(Icons.auto_awesome_rounded, color: AppColors.accentAmber, size: 18),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    height: 200,
+                                    child: ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: recState.items.length,
+                                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                                      itemBuilder: (ctx, i) {
+                                        final rec = recState.items[i];
+                                        return GestureDetector(
+                                          onTap: () => _openRecipe(context, rec),
+                                          child: SizedBox(
+                                            width: 150,
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(18),
+                                              child: Stack(
+                                                fit: StackFit.expand,
+                                                children: [
+                                                  AppRemoteImage(imageUrl: rec.imageUrl),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        begin: Alignment.topCenter,
+                                                        end: Alignment.bottomCenter,
+                                                        colors: [Colors.transparent, Colors.black.withValues(alpha: 0.72)],
+                                                        stops: const [0.4, 1.0],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    top: 10, right: 10,
+                                                    child: GestureDetector(
+                                                      onTap: () => widget.onToggleFav(rec.title),
+                                                      child: Container(
+                                                        width: 30, height: 30,
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.black.withValues(alpha: 0.3),
+                                                          shape: BoxShape.circle,
+                                                        ),
+                                                        child: Icon(
+                                                          widget.favourites.contains(rec.title)
+                                                              ? Icons.favorite_rounded
+                                                              : Icons.favorite_border_rounded,
+                                                          color: widget.favourites.contains(rec.title)
+                                                              ? AppColors.accentSalmon
+                                                              : Colors.white,
+                                                          size: 16,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    bottom: 10, left: 10, right: 10,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(rec.title,
+                                                          maxLines: 2,
+                                                          style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white, height: 1.3)),
+                                                        const SizedBox(height: 4),
+                                                        Row(children: [
+                                                          const Icon(Icons.star_rounded, color: AppColors.accentAmber, size: 11),
+                                                          const SizedBox(width: 3),
+                                                          Text(rec.rating.toString(),
+                                                            style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.white)),
+                                                        ]),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
 
                       // Section header
                       Row(

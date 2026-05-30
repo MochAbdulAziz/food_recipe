@@ -5,6 +5,7 @@ import '../bloc/home/home_cubit.dart';
 import '../bloc/home/home_state.dart';
 import '../utils/colors.dart';
 import '../widgets/app_remote_image.dart';
+import 'collections_screen.dart';
 import 'recipe_detail_screen.dart';
 
 class FavouritesScreen extends StatelessWidget {
@@ -52,8 +53,43 @@ class FavouritesScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('YOUR COLLECTION',
-                      style: GoogleFonts.poppins(fontSize: 11, color: Colors.white.withValues(alpha: 0.45), letterSpacing: 1.0)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('YOUR COLLECTION',
+                          style: GoogleFonts.poppins(fontSize: 11, color: Colors.white.withValues(alpha: 0.45), letterSpacing: 1.0)),
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider.value(
+                                value: context.read<HomeCubit>(),
+                                child: CollectionsScreen(
+                                  favourites: favourites,
+                                  onToggleFav: onToggleFav,
+                                ),
+                              ),
+                            ),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.bookmark_rounded, color: Colors.white, size: 14),
+                                const SizedBox(width: 5),
+                                Text('Collections',
+                                  style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
