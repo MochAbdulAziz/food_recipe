@@ -6,8 +6,10 @@ import '../bloc/shopping/shopping_cubit.dart';
 import '../data/offline_cache.dart';
 import '../models/collection.dart';
 import '../utils/colors.dart';
+import '../utils/share_service.dart';
 import '../widgets/app_remote_image.dart';
 import '../widgets/serving_adjuster.dart';
+import 'review_screen.dart';
 import 'start_cooking_screen.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
@@ -79,6 +81,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     Icons.arrow_back_ios_new, () => Navigator.pop(context)),
                 Row(
                   children: [
+                    _buildCircularButton(
+                      Icons.share_outlined,
+                      () => ShareService.shareRecipe(widget.foodItem),
+                    ),
+                    const SizedBox(width: 10),
                     _buildCircularButton(
                       Icons.bookmark_add_outlined,
                       () => _showSaveToCollection(context),
@@ -384,6 +391,37 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           ),
                         ),
                       ),
+                    // Rate & Review button
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  ReviewScreen(recipe: widget.foodItem),
+                            ),
+                          ),
+                          icon: const Icon(Icons.star_outline_rounded,
+                              size: 18),
+                          label: Text('Rate & Review',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.accentAmber,
+                            side: const BorderSide(
+                                color: AppColors.accentAmber),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16)),
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                        ),
+                      ),
+                    ),
                     SizedBox(
                       width: double.infinity,
                       child: DecoratedBox(

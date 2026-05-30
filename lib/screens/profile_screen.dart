@@ -7,11 +7,23 @@ import '../bloc/meal_plan/meal_plan_cubit.dart';
 import '../data/cooking_history.dart';
 import '../widgets/app_remote_image.dart';
 import '../utils/colors.dart';
+import 'add_recipe_screen.dart';
+import 'feed_screen.dart';
 import 'meal_plan_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final int favouriteCount;
-  const ProfileScreen({super.key, this.favouriteCount = 0});
+  final Set<String> favourites;
+  final void Function(String) onToggleFav;
+
+  const ProfileScreen({
+    super.key,
+    this.favouriteCount = 0,
+    this.favourites = const {},
+    this.onToggleFav = _noOp,
+  });
+
+  static void _noOp(String _) {}
 
   @override
   Widget build(BuildContext context) {
@@ -173,6 +185,33 @@ class ProfileScreen extends StatelessWidget {
                         builder: (_) => BlocProvider.value(
                           value: context.read<MealPlanCubit>(),
                           child: const MealPlanScreen(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.add_circle_outline_rounded,
+                    label: 'Submit a Recipe',
+                    desc: 'Share your own creation',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AddRecipeScreen(),
+                      ),
+                    ),
+                  ),
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.people_outline_rounded,
+                    label: 'Community Feed',
+                    desc: 'See what others are cooking',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FeedScreen(
+                          favourites: favourites,
+                          onToggleFav: onToggleFav,
                         ),
                       ),
                     ),

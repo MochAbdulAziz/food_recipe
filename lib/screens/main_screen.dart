@@ -78,7 +78,11 @@ class _MainScreenState extends State<MainScreen> {
         onToggleFav: _toggleFav,
         onTabChange: _goToTab,
       ),
-      ProfileScreen(favouriteCount: _favourites.length),
+      ProfileScreen(
+        favouriteCount: _favourites.length,
+        favourites: Set.unmodifiable(_favourites),
+        onToggleFav: _toggleFav,
+      ),
     ];
 
     return ConnectivityBanner(

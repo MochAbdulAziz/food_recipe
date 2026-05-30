@@ -1,6 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/collection.dart';
 import 'cooking_history.dart';
+import 'review_storage.dart';
 
 class LocalStorage {
   static const _favBoxName = 'favourites';
@@ -10,6 +11,7 @@ class LocalStorage {
     await Hive.openBox<String>(_favBoxName);
     await CookingHistory.init();
     await CollectionStorage.init();
+    await ReviewStorage.init();
     // Offline cache boxes are opened separately via OfflineCache.init()
   }
 
